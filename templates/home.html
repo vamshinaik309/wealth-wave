@@ -1,10 +1,75 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <!-- Add your CSS stylesheets here (e.g., Bootstrap, custom styles) -->
+    <link rel="stylesheet" href="your-custom.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3>Your App Name</h3>
+        </div>
+
+        <ul class="list-unstyled components">
+            <li class="active">
+                <a href="{{ url_for('home', user_name=user_name) }}">Home</a>
+            </li>
+            <li>
+                <a href="{{ url_for('uploadbill', user_name=user_name) }}">Upload Bill</a>
+            </li>
+            <li>
+                <a href="{{ url_for('analytics', user_name=user_name) }}">Analytics</a>
+            </li>
+            <li>
+                <a href="{{ url_for('exportdata', user_name=user_name) }}">Export Data</a>
+            </li>
+            <li>
+                <a href="{{ url_for('settings', user_name=user_name) }}">Settings</a>
+            </li>
+            <li>
+                <a href="{{ url_for('signout') }}">Logout</a>
+            </li>
+        </ul>
+        
+    </nav>
+
+    <!-- Page content -->
+    <div id="content">
+        <!-- Page header -->
+        <header>
+            <h1>Welcome User {{ user_id }} , {{ user_name }}</h1>
+        </header>
+
+        <!-- Add your page content here -->
+        <!-- For example, you can display user-specific information or content -->
+
+        <!-- Sign out link -->
+        <!-- <a href="/">Sign Out</a> -->
+    </div>
+
+    <!-- Add your JavaScript scripts here (if needed) -->
+    <script src="your-custom.js"></script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Home</title>
 </head>
 <body>
-    <h1>Welcome Home</h1>
-    <a href="/signout">Sign Out</a>
+    {% if user_id %}
+        <h1>Welcome User {{ user_id }} , {{user_name}}</h1>
+    {% else %}
+        <h1>Welcome Home</h1>
+    {% endif %}
+    <a href="/">Sign Out</a>
 </body>
 </html>
+
+ -->
