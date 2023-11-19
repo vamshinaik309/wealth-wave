@@ -1,2 +1,3 @@
 # wealth-wave
-project for cloud 
+Course Project for Cloud Computing.
+
