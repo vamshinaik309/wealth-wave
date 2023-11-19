@@ -140,34 +140,33 @@ def home():
 def uploadbill():
     if not is_authenticated():
         return redirect(url_for('signin'))
-
-    return render_template('uploadbill.html', user_name=session['user_name'])
+    return render_template('uploadbill.html', user_name=session['user_id'])
 
 @app.route('/analytics')
 def analytics():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('analytics.html', user_name=session['user_name'])
+    return render_template('analytics.html', user_name=session['user_id'])
 
 @app.route('/exportdata')
 def exportdata():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('exportdata.html', user_name=session['user_name'])
+    return render_template('exportdata.html', user_name=session['user_id'])
 
 @app.route('/settings')
 def settings():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('settings.html', user_name=session['user_name'])
+    return render_template('settings.html', user_name=session['user_id'])
 
 @app.route('/signout')
 def signout():
     session.clear()
-    return render_template('index.html')
+    return redirect(url_for('index'))
 
 # ... (Other routes remain unchanged)
 

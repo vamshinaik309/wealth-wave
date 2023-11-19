@@ -49,7 +49,7 @@ body {
 
 header {
     background-color: #020202;
-    padding: 10px;
+    padding: 0px; /* Header will not be visible*/
     color: #fff;
 }
 

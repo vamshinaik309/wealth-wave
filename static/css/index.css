@@ -33,7 +33,7 @@ h3 {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 20vh; /* 100% of the viewport height */
+    height: 15vh; /* 100% of the viewport height */
 }
 
 a {
@@ -71,7 +71,7 @@ a:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 30vh; /* 100% of the viewport height */
+    height: 24vh; /* 100% of the viewport height */
 }
 h1 {
     font-size: 3em;
