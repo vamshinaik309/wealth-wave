@@ -2,7 +2,7 @@
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
-    background-color: #000000; /* Use the background color from your homepage */
+    background-color:   #000000; /* Use the background color from your homepage */
     color: #333; /* Use the text color from your homepage */
 }
 
@@ -22,10 +22,10 @@ h2 {
     text-align: center; /* Center the text horizontally */
 
 }
-h3 {
+h4 {
     /* Adjust styles as needed */
     color: #757373;
-    padding: 10px;
+    padding: 5px;
     text-align: center; /* Center the text horizontally */
 
 }
@@ -33,7 +33,7 @@ h3 {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 15vh; /* 100% of the viewport height */
+    height: 10vh; /* 100% of the viewport height */
 }
 
 a {

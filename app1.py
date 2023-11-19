@@ -117,6 +117,7 @@ def home():
             user_info = get_authenticated_user(access_token)
             session['user_id'] = user_info['user_id']
             session['user_name'] = user_info['user_name']
+            print(session)
             if user_info:
                 print("Rendering home.html")
                 return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'])
@@ -140,28 +141,28 @@ def home():
 def uploadbill():
     if not is_authenticated():
         return redirect(url_for('signin'))
-    return render_template('uploadbill.html', user_name=session['user_id'])
+    return render_template('uploadbill.html', user_id=session['user_id'])
 
 @app.route('/analytics')
 def analytics():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('analytics.html', user_name=session['user_id'])
+    return render_template('analytics.html', user_id=session['user_id'])
 
 @app.route('/exportdata')
 def exportdata():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('exportdata.html', user_name=session['user_id'])
+    return render_template('exportdata.html', user_id=session['user_id'])
 
 @app.route('/settings')
 def settings():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('settings.html', user_name=session['user_id'])
+    return render_template('settings.html', user_id=session['user_id'])
 
 @app.route('/signout')
 def signout():
