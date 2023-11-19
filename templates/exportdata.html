@@ -1,13 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Export Data</title>
-    <!-- Add your CSS stylesheets and scripts if needed -->
-</head>
-<body>
-    <h1>Welcome, User {{ user_name }}</h1>
-    <h2>Export Data Page</h2>
-    <!-- Add your export data content here -->
-    <a href="{{ url_for('home') }}">Home</a>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Export Your Data{% endblock %}
+
+{% block content %}
+   <h1>Export Your Data to Excel Content</h1>
+{% endblock %}

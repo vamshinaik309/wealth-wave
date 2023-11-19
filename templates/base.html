@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hello{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body>
+  
+        <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3>Wealth Wave</h3>
+        </div>
+        <ul class="list-unstyled components">
+            <li class="active">
+                <a href="{{ url_for('home') }}">Home</a>
+            </li>
+            <li>
+                <a href="{{ url_for('uploadbill') }}">Upload Bill</a>
+            </li>
+            <li>
+                <a href="{{ url_for('analytics') }}">Analytics</a>
+            </li>
+            <li>
+                <a href="{{ url_for('exportdata') }}">Export Data</a>
+            </li>
+            <li>
+                <a href="{{ url_for('settings') }}">Settings</a>
+            </li>
+            <li>
+                <a href="{{ url_for('signout') }}">Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Page content -->
+    <div id="content">
+        <!-- Page header -->
+        <header>
+            <!-- ... (header content) ... -->
+        </header>
+
+        <!-- Add your page content here -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Add your JavaScript scripts here (if needed) -->
+    <script src="{{ url_for('static', filename='js/home-menu.js') }}"></script>
+</body>
+</html>
