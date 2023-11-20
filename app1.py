@@ -45,22 +45,16 @@ def get_authenticated_user(access_token):
 
 def is_token_expired(access_token):
     try:
-        # Decode the access token to get its claims, including the expiration time
+       
         decoded_token = cognito_client.decode_jwt_token(JWToken=access_token)
-
-        # Extract the expiration time from the decoded token
         expiration_time = decoded_token['exp']
-
-        # Convert the expiration time to a datetime object
         expiration_datetime = datetime.utcfromtimestamp(expiration_time)
 
-        # Check if the token has expired by comparing with the current time
         return expiration_datetime < datetime.utcnow()
 
     except Exception as e:
-        # Log the error for further analysis
         app.logger.error(f"Error checking token expiration: {e}")
-        return False  # Return False in case of any error; you may choose to handle errors differently based on your requirements
+        return False  
 
 @app.route('/home')
 def home():
@@ -70,7 +64,6 @@ def home():
         print("User is authenticated")
         access_token = session['access_token']
 
-        # Check if the access token is expired (simplified check)
         if is_token_expired(access_token):
             print("Access token expired")
             return render_template('error.html', error_message="Access token expired. Please reauthenticate.")
@@ -105,7 +98,6 @@ def home():
 
             response = requests.post(token_url,headers=headers, data=data)
 
-            # Parse the response, which should contain access_token, refresh_token, and id_token
             tokens = response.json()
             access_token = tokens['access_token']
             refresh_token = tokens['refresh_token']
@@ -169,7 +161,6 @@ def signout():
     session.clear()
     return redirect(url_for('index'))
 
-# ... (Other routes remain unchanged)
 
 if __name__ == '__main__':
     app.run(debug=True,port = 5001)
