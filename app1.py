@@ -1,6 +1,8 @@
-from flask import Flask, redirect, request, render_template, url_for, session
+from flask import Flask, redirect, request, render_template, url_for, session, jsonify
 import boto3, requests
 from datetime import datetime
+import base64
+import json
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key
@@ -12,6 +14,14 @@ COGNITO_APP_CLIENT_SECRET = '1jlii3adeqpodqd4ag1apabtsbts2h5civsl4ahut6le4g3skh3
 COGNITO_REGION = 'us-east-1'
 COGNITO_DOMAIN = 'https://wealthwave.auth.us-east-1.amazoncognito.com'
 REDIRECT_URI = 'http://localhost:5001/home'
+
+#API Gateway Endpoints
+API_GATEWAY_UPLOAD_ENDPOINT = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage/upload'
+API_GATEWAY_AUTOFILL_ENDPOINT = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage/autofill'
+API_GATEWAY_SAVEBILL_ENDPOINT = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage/savebill'
+
+#S3 Configurations
+BUCKET_NAME = 'wealthwave-bills-data'
 
 cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
 
@@ -161,6 +171,66 @@ def signout():
     session.clear()
     return redirect(url_for('index'))
 
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['file']
+    user_id = request.form.get('user_id')  # Assuming the user ID is sent as part of the form data
+
+    # Read the file content and encode it in base64
+    file_content_base64 = base64.b64encode(file.read()).decode('utf-8')
+
+    # Prepare the payload for the API Gateway
+    payload = json.dumps({
+        'user_id': user_id,
+        'filename': file.filename,
+        'body': file_content_base64,
+        'bucket_name': BUCKET_NAME
+    })
+
+    # Send the request to API Gateway
+    response = requests.post(API_GATEWAY_UPLOAD_ENDPOINT, data=payload, headers={'Content-Type': 'application/json'})
+
+    # Handle the response from API Gateway
+    if response.status_code == 200:
+        # Process was successful, forward the response
+        return jsonify(response.json()), 200
+    else:
+        # There was an error, forward the error message
+        return jsonify(response.json()), response.status_code
+
+@app.route('/autofill', methods=['POST'])
+def auto_fill():
+    data = request.json
+    s3_file_key = data.get('s3_file_key')
+
+    # Prepare the payload for the API Gateway request
+    payload = {
+        'bucket_name': BUCKET_NAME,  # Replace with your bucket name
+        'document_key': s3_file_key
+    }
+
+    # Send the request to the API Gateway endpoint
+    response = requests.post(API_GATEWAY_AUTOFILL_ENDPOINT, json=payload)
+
+    # Return the response to the frontend
+    return jsonify(response.json()), response.status_code
+
+@app.route('/saveBillData', methods=['POST'])
+def save_bill_data():
+    # Get the data from the request
+    data = request.json
+
+    # Send the request to the Lambda function via API Gateway
+    response = requests.post(API_GATEWAY_SAVEBILL_ENDPOINT, json=data)
+
+    # Forward the response from the Lambda function
+    if response.status_code == 200:
+        return jsonify(response.json()), 200
+    else:
+        return jsonify(response.json()), response.status_code
 
 if __name__ == '__main__':
     app.run(debug=True,port = 5001)

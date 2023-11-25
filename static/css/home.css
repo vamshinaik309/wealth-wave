@@ -86,3 +86,24 @@ header {
     /* For example, you can adjust the margin-left or add transitions */
     margin-left: 250px;
 }
+
+#autoFillContainer {
+    display: flex;
+    align-items: center; /* Aligns items vertically */
+}
+
+#autoFillBtn {
+    /* Add any specific styles for the button here */
+    margin-right: 10px; /* Adds space between the button and the spinner */
+}
+
+#loadingSpinner {
+    display: none; /* Keeps the spinner hidden by default */
+}
+
+#loadingSpinner img {
+    /* Sets a fixed height for the spinner, adjust as needed */
+    height: 5rem; /* Example height to match the button */
+    width: auto; /* Maintains the aspect ratio of the gif */
+}
+
