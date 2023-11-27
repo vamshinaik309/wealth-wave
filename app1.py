@@ -15,6 +15,7 @@ COGNITO_REGION = 'us-east-1'
 COGNITO_DOMAIN = 'https://wealthwave.auth.us-east-1.amazoncognito.com'
 REDIRECT_URI = 'http://localhost:5001/home'
 
+
 #API Gateway Endpoints
 API_GATEWAY_UPLOAD_ENDPOINT = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage/upload'
 API_GATEWAY_AUTOFILL_ENDPOINT = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage/autofill'
@@ -145,12 +146,42 @@ def uploadbill():
         return redirect(url_for('signin'))
     return render_template('uploadbill.html', user_id=session['user_id'])
 
+# @app.route('/analytics')
+# def analytics():
+#     if not is_authenticated():
+#         return redirect(url_for('signin'))
+
+#     return render_template('analytics.html', user_id=session['user_id'])
+
 @app.route('/analytics')
 def analytics():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('analytics.html', user_id=session['user_id'])
+   # Define the API URL
+    api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/lasttendays'
+
+   # Define the request payload (data to be sent in the request body)
+    payload = {'body': json.dumps({'user_id': session['user_id']})}
+
+    # Make a request to the API
+    response = requests.get(api_url, data=json.dumps(payload))
+
+
+    print(response)
+    print("---------------------")
+
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the JSON response
+        api_data = response.json()
+        print(api_data)  # Print the API data in your Flask console for debugging
+    else:
+        # Print an error message if the request was not successful
+        print(f"Error fetching API data. Status code: {response.status_code}")
+
+    return render_template('analytics.html', user_id=session['user_id'], api_data=api_data)
+
 
 @app.route('/exportdata')
 def exportdata():

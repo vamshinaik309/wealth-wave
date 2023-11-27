@@ -7,3 +7,16 @@ REDIRECT_URI = 'http://localhost:5000/home'  # Callback URL after login
 
 # Initialize Cognito client
 cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
+
+
+
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+    <h1> Analytic page content</h1>
+    <h3>Your UserID  is  {{ user_id }}</h3>
+    <h2>{{api_data}}</h2>
+{% endblock %}
