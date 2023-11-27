@@ -6,5 +6,33 @@
 {% block content %}
     <h1> Analytic page content</h1>
     <h3>Your UserID is {{ user_id }}</h3>
-    <h2>{{api_data}}</h2>
+
+    <h2>API Data</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Total Amount</th>
+                <th>Category</th>
+                <th>Timestamp</th>
+                <th>Uploaded File Key</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set api_data_parsed = api_data.body | replace("'", '"') | replace('statusCode": 200, "body": ', '') | replace('\\', '') | json.loads %}
+            {% if api_data_parsed %}
+                <tr>
+                    <td>{{ api_data_parsed[0].date }}</td>
+                    <td>{{ api_data_parsed[0].totalAmount }}</td>
+                    <td>{{ api_data_parsed[0].category }}</td>
+                    <td>{{ api_data_parsed[0].timestamp }}</td>
+                    <td>{{ api_data_parsed[0].uploadedFileKey }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">No data available</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
 {% endblock %}
