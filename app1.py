@@ -3,6 +3,8 @@ import boto3, requests
 from datetime import datetime
 import base64
 import json
+from jinja2 import Environment, FileSystemLoader
+from collections import defaultdict
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key
@@ -146,42 +148,57 @@ def uploadbill():
         return redirect(url_for('signin'))
     return render_template('uploadbill.html', user_id=session['user_id'])
 
-# @app.route('/analytics')
-# def analytics():
-#     if not is_authenticated():
-#         return redirect(url_for('signin'))
-
-#     return render_template('analytics.html', user_id=session['user_id'])
-
 @app.route('/analytics')
 def analytics():
+    # Check if the user is authenticated
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-   # Define the API URL
+    # Define the API URL
     api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/lasttendays'
 
-   # Define the request payload (data to be sent in the request body)
+    # Define the request payload (data to be sent in the request body)
     payload = {'body': json.dumps({'user_id': session['user_id']})}
 
-    # Make a request to the API
-    response = requests.get(api_url, data=json.dumps(payload))
+    try:
+        # Make a request to the API
+        response = requests.get(api_url, data=json.dumps(payload))
 
+        print(response)
+        print("---------------------")
 
-    print(response)
-    print("---------------------")
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse the JSON response
+            api_data = response.json()
+            print(api_data)  # Print the API data in your Flask console for debugging
+            print(type(api_data))
 
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        # Parse the JSON response
-        api_data = response.json()
-        print(api_data)  # Print the API data in your Flask console for debugging
-    else:
-        # Print an error message if the request was not successful
-        print(f"Error fetching API data. Status code: {response.status_code}")
+            # Extract 'body' from api_data or provide an empty list as a default
+            body_data = json.loads(api_data.get('body', '[]'))
+            print(body_data)
 
-    return render_template('analytics.html', user_id=session['user_id'], api_data=api_data)
+            # Calculate the sum of totalAmount values
+            total_amount_sum = sum(float(entry.get('totalAmount', 0)) for entry in body_data)
+            print(f"Total Amount Sum: {total_amount_sum}")
 
+            # Combine values for the same category
+            category_totals = defaultdict(float)
+            for entry in body_data:
+                category_totals[entry['category']] += float(entry.get('totalAmount', 0))
+
+            # Prepare data for pie chart
+            pie_chart_data = [{'category': category, 'totalAmount': total} for category, total in category_totals.items()]
+
+            return render_template('analytics.html', user_id=session['user_id'], total_amount_sum=total_amount_sum, pie_chart_data=json.dumps(pie_chart_data))
+        else:
+            # Print an error message if the request was not successful
+            print(f"Error fetching API data. Status code: {response.status_code}")
+            return render_template('analytics.html', user_id=session['user_id'], total_amount_sum=0, pie_chart_data="[]")
+
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+    
 
 @app.route('/exportdata')
 def exportdata():
