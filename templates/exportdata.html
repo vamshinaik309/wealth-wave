@@ -5,5 +5,38 @@
 
 {% block content %}
    <h1>Export Your Data to Excel Content</h1>
-   <h3>Your UserID  is  {{ user_id }}</h3>
+   <h3>Your UserID is {{ user_id }}</h3>
+
+   
+
+   <!-- Add a form with a dropdown for selecting the date range -->
+   <form method="post" action="{{ url_for('exportdata') }}">
+      <label for="dateRange">Select Date Range:</label>
+      <select name="dateRange" id="dateRange">
+         <option value="1_week">1 Week</option>
+         <option value="1_month">1 Month</option>
+         <option value="1_year">1 Year</option>
+         <option value="custom">Custom Date Range</option>
+         <!-- Add more options as needed -->
+      </select>
+
+      <!-- Input fields for custom date range -->
+      <div id="customDateRange" style="display: none;">
+         <label for="startDate">Start Date:</label>
+         <input type="date" name="startDate" id="startDate">
+
+         <label for="endDate">End Date:</label>
+         <input type="date" name="endDate" id="endDate">
+      </div>
+
+      <button type="submit">Submit</button>
+   </form>
+
+   <script>
+      // Show/hide custom date range input fields based on selection
+      document.getElementById('dateRange').addEventListener('change', function() {
+         var customDateRange = document.getElementById('customDateRange');
+         customDateRange.style.display = this.value === 'custom' ? 'block' : 'none';
+      });
+   </script>
 {% endblock %}

@@ -1,10 +1,12 @@
 from flask import Flask, redirect, request, render_template, url_for, session, jsonify
 import boto3, requests
-from datetime import datetime
 import base64
 import json
 from jinja2 import Environment, FileSystemLoader
 from collections import defaultdict
+from flask import flash
+from datetime import datetime, timedelta
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key
@@ -29,7 +31,7 @@ BUCKET_NAME = 'wealthwave-bills-data'
 cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
 
 def is_authenticated():
-    return 'user_id' in session and 'user_name' in session
+    return 'user_id' in session and 'user_name' in session and 'user_email' in session
 
 @app.route('/')
 def index():
@@ -44,10 +46,12 @@ def get_authenticated_user(access_token):
     try:
         # Get user information using the access token
         user_info = cognito_client.get_user(AccessToken=access_token)
+        print(user_info)
         user_name = next((attribute['Value'] for attribute in user_info['UserAttributes'] if attribute['Name'] == 'given_name'), None)
         user_id = user_info['Username']  # or another unique identifier
+        user_email = next((attribute['Value'] for attribute in user_info['UserAttributes'] if attribute['Name'] == 'email'), None)
 
-        return {'user_id': user_id, 'user_name': user_name}
+        return {'user_id': user_id, 'user_name': user_name, 'user_email' : user_email}
 
     except Exception as e:
         print(f"Error getting user information: {e}")
@@ -84,7 +88,7 @@ def home():
         user_info = get_authenticated_user(access_token)
         if user_info:
             print("Rendering home.html")
-            return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'])
+            return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'], user_email=user_info['user_email'])
         else:
             print("Error retrieving user information")
             # Handle error retrieving user information
@@ -122,10 +126,11 @@ def home():
             user_info = get_authenticated_user(access_token)
             session['user_id'] = user_info['user_id']
             session['user_name'] = user_info['user_name']
+            session['user_email']= user_info['user_email']
             print(session)
             if user_info:
                 print("Rendering home.html")
-                return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'])
+                return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'], user_email=user_info['user_email'])
             else:
                 print("Error retrieving user information")
                 # Handle error retrieving user information
@@ -198,12 +203,54 @@ def analytics():
 
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON: {e}")
-    
 
-@app.route('/exportdata')
+# api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/export/daterange'
+@app.route('/exportdata', methods=['GET', 'POST'])
 def exportdata():
     if not is_authenticated():
         return redirect(url_for('signin'))
+    
+    if request.method == 'POST':
+        # Get the selected date range from the form
+        date_range = request.form.get('dateRange')
+
+        # Initialize payload with date_range
+        payload = {'date_range': date_range, 'user_id': session['user_id'], 'user_email' : session['user_email'], 'user_name' : session['user_name']}
+
+
+        # If the selected date range is 'custom', add start and end dates to the payload
+        if date_range == 'custom':
+            start_date = request.form.get('startDate')
+            end_date = request.form.get('endDate')
+            payload['start_date'] = start_date
+            payload['end_date'] = end_date
+        else:
+            # Calculate start and end dates based on the selected option
+            end_date = datetime.now().strftime('%Y-%m-%d')  # End date is always today
+
+            if date_range == '1_week':
+                start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+            elif date_range == '1_month':
+                start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+            elif date_range == '1_year':
+                start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+            else:
+                # Handle additional date range options if needed
+                start_date = end_date
+
+            payload['start_date'] = start_date
+            payload['end_date'] = end_date
+
+        # Make a POST request to your API with the payload
+        api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/export/daterange'
+        response = requests.post(api_url, json=payload)
+
+        if response.status_code == 200:
+            # Display a success message on the frontend
+            flash('Check your mail in some time for the exported data.', 'success')
+        else:
+            # Display an error message on the frontend
+            flash('Error exporting data. Please try again later.', 'error')
 
     return render_template('exportdata.html', user_id=session['user_id'])
 
@@ -212,7 +259,7 @@ def settings():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('settings.html', user_id=session['user_id'])
+    return render_template('settings.html', user_id=session['user_id'],user_email=session['user_email'])
 
 @app.route('/signout')
 def signout():
