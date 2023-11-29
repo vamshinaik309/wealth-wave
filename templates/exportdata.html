@@ -111,5 +111,17 @@
          var customDateRange = document.getElementById('customDateRange');
          customDateRange.style.display = this.value === 'custom' ? 'block' : 'none';
       });
+
+      // Add event listener for form submission
+      document.querySelector('.export-form').addEventListener('submit', function(event) {
+          // Prevent the default form submission behavior
+          event.preventDefault();
+
+          // Display an alert
+          alert('You will receive Mail in short time! Redirecting to home page...');
+
+          // Redirect to the home page (you can replace 'home.html' with your actual home page URL)
+          window. location.href = '{{ url_for("home") }}';
+      });
    </script>
 {% endblock %}
