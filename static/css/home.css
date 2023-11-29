@@ -87,23 +87,107 @@ header {
     margin-left: 250px;
 }
 
-#autoFillContainer {
+/* Upload Page CSS Elements - tanmay - Additional CSS to style the page */
+#pageContainer {
     display: flex;
-    align-items: center; /* Aligns items vertically */
+    gap: 20px; /* Space between the form and image containers */
 }
 
-#autoFillBtn {
-    /* Add any specific styles for the button here */
-    margin-right: 10px; /* Adds space between the button and the spinner */
+#formContainer button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: auto; /* Adjust the width as needed */
+    display: block; /* Center the button */
+    margin-left: auto;
+    margin-right: auto;
 }
 
-#loadingSpinner {
-    display: none; /* Keeps the spinner hidden by default */
+#formContainer div {
+    margin-bottom: 15px;
 }
 
-#loadingSpinner img {
-    /* Sets a fixed height for the spinner, adjust as needed */
-    height: 5rem; /* Example height to match the button */
-    width: auto; /* Maintains the aspect ratio of the gif */
+#formContainer input[type="file"], 
+#formContainer input[type="date"], 
+#formContainer input[type="number"], 
+#formContainer select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
+#formContainer button {
+    background-color: #4CAF50; /* Green button */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#formContainer button:hover {
+    background-color: #45a049;
+}
+
+#formContainer .clearBtn {
+    background-color: #f44336; /* Red clear button */
+}
+
+#formContainer .clearBtn:hover {
+    background-color: #d32f2f;
+}
+
+#imageContainer {
+    flex: 1;
+    max-width: 400px;
+    max-height: 400px;
+    overflow: auto;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px; /* Added for consistency */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Added for consistency */
+}
+
+#selectedImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#uploadStatus, #autofillStatus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#uploadStatus img, #autofillStatus img {
+    width: 20px;
+    height: 20px;
+}
+
+#fileName {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+/* Additional consistency with home.css */
+#sidebar a, #formContainer button, #formContainer .clearBtn {
+    transition: 0.3s; /* Smooth transition for hover effects */
+}
+
+.section-separator {
+    border: none;
+    height: 1px;
+    background-color: #ccc; /* Light gray color */
+    margin: 20px 0; /* Adjust spacing around the separator */
+}

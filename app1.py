@@ -19,9 +19,10 @@ REDIRECT_URI = 'http://localhost:5001/home'
 
 
 #API Gateway Endpoints
-API_GATEWAY_UPLOAD_ENDPOINT = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage/upload'
-API_GATEWAY_AUTOFILL_ENDPOINT = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage/autofill'
-API_GATEWAY_SAVEBILL_ENDPOINT = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage/savebill'
+API_GATEWAY_BASE_URL = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/testStage'
+API_GATEWAY_UPLOAD_ENDPOINT = API_GATEWAY_BASE_URL + '/upload'
+API_GATEWAY_AUTOFILL_ENDPOINT = API_GATEWAY_BASE_URL + '/autofill'
+API_GATEWAY_SAVEBILL_ENDPOINT = API_GATEWAY_BASE_URL + '/savebill'
 
 #S3 Configurations
 BUCKET_NAME = 'wealthwave-bills-data'

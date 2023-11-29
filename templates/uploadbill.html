@@ -7,55 +7,79 @@
     <h1>Upload Bills Page</h1>
     <h3>Your UserID is {{ user_id }}</h3>
 
-    <!-- Form for File Upload -->
-    <form id="uploadForm" method="post" enctype="multipart/form-data">
-        <!-- Upload Bill Image Button -->
-        <input type="file" id="billImageUpload" name="file" accept="image/*">
-        <button type="button" id="uploadBtn">Upload</button>
-    </form>
+    <div id="pageContainer">
+        <!-- Left side form container -->
+        <div id="formContainer">
+            <!-- Your form elements here -->
+            <!-- Form for File Upload -->
+            <form id="uploadForm" method="post" enctype="multipart/form-data">
+                <!-- Upload Bill Image Button -->
+                <input type="file" id="billImageUpload" name="file" accept="image/*">
+            </form>  
 
-    <div id="autoFillContainer">
-        <!-- Autofill Button (initially disabled) -->
-        <button id="autoFillBtn" disabled>AutoFill</button>
-        <!-- Loading Spinner -->
-        <div id="loadingSpinner" style="display: none;">
-            <img src="{{ url_for('static', filename='css/images/loading.gif') }}" alt="Loading...">
+            <!-- Combined Upload and Autofill Button -->
+            <button type="button" id="uploadAutofillBtn" disabled>Upload & Autofill</button>  
+
+            <hr class="section-separator"> <!-- Separator -->
+
+            <!-- Text Fields -->
+            <div>
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date">
+            </div>
+            <div>
+                <label for="totalAmount">Total Amount:</label>
+                <input type="number" id="totalAmount" name="totalAmount" step="0.01">
+            </div>
+            <div>
+                <label for="category">Category:</label>
+                <select id="category" name="category">
+                    <option value="" selected>Select category</option>
+                    <option value="groceries/food">Groceries/Food</option>
+                    <option value="dining">Dining</option>
+                    <option value="utilities">Utilities</option>
+                    <option value="housing">Housing</option>
+                    <option value="transportation">Transportation</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="education">Education</option>
+                    <option value="alcohol/beverages">Alcohol/Beverages</option>
+                    <option value="travel">Travel</option>
+                    <option value="miscellaneous">Miscellaneous</option>
+                </select>             
+            </div>
+
+            <!-- Save Button -->
+            <button id="saveBtn" disabled>Save</button>
+            <button id="clearBtn">Clear</button>
+        </div>
+
+        <!-- Right side image container -->
+        <div id="imageContainer">
+            <!-- The image will go here -->
+            <img id="selectedImage" src="" alt="Selected Image" style="display: none;"/>
+        </div>
+
+        <div id="statusContainer">
+            <!-- Spinners and Tick -->
+            <div id="uploadStatus">
+                <span id="uploadingText" style="display: none;">Uploading Image...</span>
+                <div id="uploadSpinner" style="display: none;">
+                    <img src="{{ url_for('static', filename='css/images/loading.gif') }}" alt="Uploading...">
+                </div>
+                <div id="uploadedTick" style="display: none;">
+                    <img src="{{ url_for('static', filename='css/images/tick.png') }}" alt="Uploaded">
+                </div>
+            </div>
+            <div id="autofillStatus">
+                <span id="autofillingText" style="display: none;">Autofilling Details...</span>
+                <div id="autofillSpinner" style="display: none;">
+                    <img src="{{ url_for('static', filename='css/images/loading.gif') }}" alt="Autofilling...">
+                </div>
+            </div>  
         </div>
     </div>
-    
-
-    <!-- Text Fields -->
-    <div>
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date">
-    </div>
-    <div>
-        <label for="totalAmount">Total Amount:</label>
-        <input type="number" id="totalAmount" name="totalAmount" step="0.01">
-    </div>
-    <div>
-        <label for="category">Category:</label>
-        <select id="category" name="category">
-            <option value="" selected>Select category</option>
-            <option value="groceries/food">Groceries/Food</option>
-            <option value="dining">Dining</option>
-            <option value="utilities">Utilities</option>
-            <option value="housing">Housing</option>
-            <option value="transportation">Transportation</option>
-            <option value="healthcare">Healthcare</option>
-            <option value="entertainment">Entertainment</option>
-            <option value="clothing">Clothing</option>
-            <option value="education">Education</option>
-            <option value="alcohol/beverages">Alcohol/Beverages</option>
-            <option value="travel">Travel</option>
-            <option value="miscellaneous">Miscellaneous</option>
-        </select>             
-    </div>
-
-    <!-- Save Button -->
-    <button id="saveBtn" disabled>Save</button>
-    <button id="clearBtn">Clear</button>
-
 
     <!-- JavaScript to Handle File Upload and Enable AutoFill -->
     <script>
@@ -90,15 +114,42 @@
         checkFields();
         });
 
+        document.getElementById('billImageUpload').addEventListener('change', function() {
+            var fileInput = this;
+            var uploadAutofillBtn = document.getElementById('uploadAutofillBtn');
+            var selectedImage = document.getElementById('selectedImage');
 
-        document.getElementById('uploadBtn').addEventListener('click', function() {
+            if (fileInput.files && fileInput.files[0]) {
+                uploadAutofillBtn.disabled = false; // Enable the button
+
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImage.src = e.target.result;
+                    selectedImage.style.display = 'block'; // Show the image
+                };
+                reader.readAsDataURL(fileInput.files[0]); // Convert the image file to a data URL
+            } else {
+                uploadAutofillBtn.disabled = true; // Disable the button if no file is selected
+                selectedImage.style.display = 'none'; // Hide the image
+            }
+        });
+
+        document.getElementById('uploadAutofillBtn').addEventListener('click', function() {
             var fileInput = document.getElementById('billImageUpload');
-            if(fileInput.files.length > 0) {
+            var uploadingText = document.getElementById('uploadingText');
+            var uploadSpinner = document.getElementById('uploadSpinner');
+            var uploadedTick = document.getElementById('uploadedTick');
+            var autofillingText = document.getElementById('autofillingText');
+            var autofillSpinner = document.getElementById('autofillSpinner');
+
+            if (fileInput.files.length > 0) {
+                uploadingText.style.display = 'block'; // Show uploading text
+                uploadSpinner.style.display = 'block'; // Show upload spinner
+
                 var formData = new FormData();
                 formData.append('file', fileInput.files[0]);
-                formData.append('user_id', '{{ user_id }}'); // Send the user ID along with the file
+                formData.append('user_id', '{{ user_id }}'); // Assuming user_id is available in your template
 
-                // Make the AJAX request to the Flask endpoint
                 fetch('/upload', {
                     method: 'POST',
                     body: formData
@@ -106,49 +157,36 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);
-                    if(data.message === 'File uploaded successfully') {
-                        // Store the file key
+                    if (data.message === 'File uploaded successfully') {
+                        // When the upload is successful
                         uploadedFileKey = data.file_key;
-                        // Enable the AutoFill button if the upload is successful
-                        document.getElementById('autoFillBtn').disabled = false;
+
+                        // Hide upload spinner and show tick mark
+                        uploadSpinner.style.display = 'none'; // Hide upload spinner
+                        uploadedTick.style.display = 'block'; // Show uploaded tick
+
+                        autofillingText.style.display = 'block'; // Show autofilling text
+                        autofillSpinner.style.display = 'block'; // Show autofill spinner
+                        
+                        return fetch('/autofill', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ s3_file_key: uploadedFileKey })
+                        });
                     } else {
-                        // Handle any errors
-                        alert('File upload failed');
+                        throw new Error('File upload failed');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }
-        });
-
-        // Further implementation for AutoFill button if needed
-        document.getElementById('autoFillBtn').addEventListener('click', function() {
-            var btn = this;
-            var spinner = document.getElementById('loadingSpinner');
-
-            // Show the spinner
-            spinner.style.display = 'block';
-
-            if (uploadedFileKey) {
-                fetch('/autofill', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ s3_file_key: uploadedFileKey })
-                })
                 .then(response => {
-                    // Check if the response is ok (status code 200)
                     if (!response.ok) {
-                        throw new Error('Problem with the response');
+                        throw new Error('Autofill failed');
                     }
                     return response.json();
                 })
                 .then(dataString => {
-                    const data = JSON.parse(dataString); // Parse the JSON string into an object
+                    const data = JSON.parse(dataString);
                     console.log(data);
-                    // Update the fields with the extracted data
+                    // Update fields with extracted data
                     if (data.date) {
                         document.getElementById('date').value = data.date;
                     }
@@ -158,19 +196,25 @@
                     if (data.category) {
                         document.getElementById('category').value = data.category.toLowerCase();
                     }
+
+                    // After successful autofill
+                    uploadingText.style.display = 'none'; // Hide uploading text
+                    uploadedTick.style.display = 'none'; // Show uploaded tick
+                    autofillSpinner.style.display = 'none'; // Hide autofill spinner
+                    autofillingText.style.display = 'none'; // Hide autofilling text
+                    checkFields();
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error autofilling the data. Please try again.');
-                })
-                .finally(() => {
-                    // Hide the spinner regardless of success or failure
-                    spinner.style.display = 'none';
-                    checkFields();
+                    alert(error.message);
+                    uploadSpinner.style.display = 'none'; // Hide upload spinner
+                    uploadingText.style.display = 'none'; // Hide uploading text
+                    uploadedTick.style.display = 'none'; // Show uploaded tick
+                    autofillSpinner.style.display = 'none'; // Hide autofill spinner
+                    autofillingText.style.display = 'none'; // Hide autofilling text
                 });
             } else {
-                alert('No file uploaded for AutoFill');
-                spinner.style.display = 'none'; // Hide spinner if no file is uploaded
+                alert('Please select a file to upload');
             }
         });
 
@@ -207,6 +251,7 @@
             .then(data => {
                 console.log(data);
                 alert('Data saved successfully');
+                window.location.href = '/home';  // Redirect to the home page
             })
             .catch(error => {
                 console.error('Error:', error);
