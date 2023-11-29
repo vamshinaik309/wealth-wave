@@ -106,22 +106,44 @@
    </div>
 
    <script>
-      // Show/hide custom date range input fields based on selection
-      document.getElementById('dateRange').addEventListener('change', function() {
-         var customDateRange = document.getElementById('customDateRange');
-         customDateRange.style.display = this.value === 'custom' ? 'block' : 'none';
-      });
+    document.getElementById('dateRange').addEventListener('change', function () {
+        var customDateRange = document.getElementById('customDateRange');
+        customDateRange.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
 
-      // Add event listener for form submission
-      document.querySelector('.export-form').addEventListener('submit', function(event) {
-          // Prevent the default form submission behavior
-          event.preventDefault();
+    document.querySelector('.export-form').addEventListener('submit', function (event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
 
-          // Display an alert
-          alert('You will receive Mail in short time! Redirecting to home page...');
+        // Get the form element
+        var form = event.target;
 
-          // Redirect to the home page (you can replace 'home.html' with your actual home page URL)
-          window. location.href = '{{ url_for("home") }}';
-      });
-   </script>
+        // Send a POST request using fetch API
+        fetch(form.action, {
+            method: form.method,
+            body: new URLSearchParams(new FormData(form))
+        })
+            .then(function (response) {
+                // Print the response
+                console.log(response);
+
+                if (response.ok) {
+                    // Display success alert
+                    alert('You will receive Mail in a short time! Redirecting to the home page...');
+
+                    // Redirect to the home page (replace 'home.html' with your actual home page URL)
+                    window.location.href = '{{ url_for("home") }}';
+                } else {
+                    // Display error alert
+                    alert('Error: Unable to export data. Please try again.');
+                }
+            })
+            .catch(function (error) {
+                // Handle network error
+                console.error('Network error:', error);
+                alert('Error: Unable to export data. Please try again.');
+            });
+    });
+</script>
+
 {% endblock %}
