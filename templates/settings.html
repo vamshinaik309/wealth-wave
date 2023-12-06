@@ -1,9 +1,59 @@
 <!DOCTYPE html>
 {% extends 'base.html' %}
-
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/settings.css') }}">
+    <!-- Add other head elements if needed -->
+</head>
 {% block title %}Profile Settings{% endblock %}
 
 {% block content %}
-    <h1> Settings page content</h1>
-    <h3>Your UserID  is  {{ user_id }}</h3>
+    <h1>Settings page content</h1>
+    
+    <form id="profileForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="{{ user_name}}" required>
+
+        <label for="profilePicture">Profile Picture:</label>
+        <input type="file" id="profilePicture" name="profilePicture">
+
+        <label for="emailFrequency">Report Email Frequency:</label>
+        <select id="emailFrequency" name="emailFrequency">
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Biweekly</option>
+            <option value="monthly">Monthly</option>
+        </select>
+
+        <button type="button" onclick="saveSettings()">Save</button>
+    </form>
+
+    <h3>Your UserID is {{ user_id }}</h3>
+
+    <script>
+        function saveSettings() {
+            const username = document.getElementById('username').value;
+            const profilePicture = document.getElementById('profilePicture').files[0];
+            const emailFrequency = document.getElementById('emailFrequency').value;
+
+            // Dummy API endpoint, replace with your actual endpoint
+            const apiEndpoint = 'https://api.example.com/save-settings';
+
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('profilePicture', profilePicture);
+            formData.append('emailFrequency', emailFrequency);
+
+            fetch(apiEndpoint, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response as needed
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 {% endblock %}

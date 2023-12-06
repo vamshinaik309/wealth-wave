@@ -46,7 +46,7 @@ def get_authenticated_user(access_token):
     try:
         # Get user information using the access token
         user_info = cognito_client.get_user(AccessToken=access_token)
-        print(user_info)
+        #print(user_info)
         user_name = next((attribute['Value'] for attribute in user_info['UserAttributes'] if attribute['Name'] == 'given_name'), None)
         user_id = user_info['Username']  # or another unique identifier
         user_email = next((attribute['Value'] for attribute in user_info['UserAttributes'] if attribute['Name'] == 'email'), None)
@@ -87,7 +87,7 @@ def home():
 
         user_info = get_authenticated_user(access_token)
         if user_info:
-            print("Rendering home.html")
+            print("Rendering home.html after user user authentication is done")
             return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'], user_email=user_info['user_email'])
         else:
             print("Error retrieving user information")
@@ -127,7 +127,10 @@ def home():
             session['user_id'] = user_info['user_id']
             session['user_name'] = user_info['user_name']
             session['user_email']= user_info['user_email']
+            print("session data start")
             print(session)
+            print("session data end")
+            
             if user_info:
                 print("Rendering home.html")
                 return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'], user_email=user_info['user_email'])
@@ -259,7 +262,7 @@ def settings():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('settings.html', user_id=session['user_id'],user_email=session['user_email'])
+    return render_template('settings.html', user_id=session['user_id'],user_email=session['user_email'], user_name = session['user_name'])
 
 @app.route('/signout')
 def signout():
@@ -326,6 +329,20 @@ def save_bill_data():
         return jsonify(response.json()), 200
     else:
         return jsonify(response.json()), response.status_code
+
+session_cleared = False
+
+# Function to clear the session if it's not cleared yet
+def clear_session():
+    global session_cleared
+    if not session_cleared:
+        session.clear()
+        session_cleared = True
+
+# Register the clear_session function before each request
+@app.before_request
+def before_request():
+    clear_session()
 
 if __name__ == '__main__':
     app.run(debug=True,port = 5001)
