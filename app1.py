@@ -88,8 +88,25 @@ def home():
 
         user_info = get_authenticated_user(access_token)
         if user_info:
-            print("Rendering home.html")
-            return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'], user_email=user_info['user_email'])
+            # Retrieve last 10 transactions data (similar to the /analytics route)
+            api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/lasttendays'
+            payload = {'body': json.dumps({'user_id': session['user_id']})}
+            response = requests.get(api_url, data=json.dumps(payload))
+
+            if response.status_code == 200:
+                api_data = response.json()
+                body_data = json.loads(api_data.get('body', '[]'))
+                transactions = body_data[:10]  # Take the first 10 transactions
+
+                # Calculate total amount
+                total_amount = sum(float(entry.get('totalAmount', 0)) for entry in transactions)
+
+                # Render home.html with user information, last 10 transactions, and total amount
+                return render_template('home.html', user_id=user_info['user_id'],
+                                           user_name=user_info['user_name'],
+                                           user_email=user_info['user_email'],
+                                           transactions=transactions,
+                                           total_amount=total_amount)
         else:
             print("Error retrieving user information")
             # Handle error retrieving user information
@@ -196,11 +213,20 @@ def analytics():
             # Prepare data for pie chart
             pie_chart_data = [{'category': category, 'totalAmount': total} for category, total in category_totals.items()]
 
-            return render_template('analytics.html', user_id=session['user_id'], total_amount_sum=total_amount_sum, pie_chart_data=json.dumps(pie_chart_data))
+            # Prepare data for last 10 transactions
+            last_10_transactions = body_data[:10]
+
+            return render_template(
+                'analytics.html',
+                user_id=session['user_id'],
+                total_amount_sum=total_amount_sum,
+                pie_chart_data=json.dumps(pie_chart_data),
+                transactions=last_10_transactions
+            )
         else:
             # Print an error message if the request was not successful
             print(f"Error fetching API data. Status code: {response.status_code}")
-            return render_template('analytics.html', user_id=session['user_id'], total_amount_sum=0, pie_chart_data="[]")
+            return render_template('analytics.html', user_id=session['user_id'], total_amount_sum=0, pie_chart_data="[]", transactions=[])
 
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON: {e}")

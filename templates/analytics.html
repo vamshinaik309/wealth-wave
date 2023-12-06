@@ -11,12 +11,77 @@
     <!-- Add Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Add DataTables library and CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+    <!-- Custom CSS for the table -->
+    <style>
+        #transactionsTable {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        #transactionsTable th, #transactionsTable td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        #transactionsTable th {
+            background-color: #f2f2f2;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #transactionsTable th:hover {
+            background-color: #ddd;
+        }
+
+        #transactionsTable th:after {
+            content: ' ▼';
+        }
+
+        #transactionsTable th.sort-asc:after {
+            content: ' ▲';
+        }
+
+        #transactionsTable td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+
     <div style="max-width: 600px; margin: auto;">
         <canvas id="myPieChart" width="400" height="400"></canvas>
     </div>
 
     <!-- Add heading below the pie chart -->
     <h4>Last 10 Transactions</h4>
+    <table id="transactionsTable" class="display">
+        <thead>
+            <tr>
+                <th class="sortable" data-column="date">Date</th>
+                <th class="sortable" data-column="totalAmount">Total Amount</th>
+                <th class="sortable" data-column="category">Category</th>
+                <th class="sortable" data-column="uploadedFileKey">File Key</th>
+                <th class="sortable" data-column="timestamp">Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction['date'] }}</td>
+                    <td>${{ transaction['totalAmount'] }}</td>
+                    <td>{{ transaction['category'] }}</td>
+                    <td>{{ transaction['uploadedFileKey'] }}</td>
+                    <td>{{ transaction['timestamp'] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
     <script>
         // Extract data for the pie chart
@@ -83,6 +148,25 @@
                     }
                 }
             }
+        });
+
+        // Initialize DataTable
+        $(document).ready(function() {
+            var table = $('#transactionsTable').DataTable({
+                "scrollX": true, // Enable horizontal scrolling
+                "order": [[4, "desc"]], // Initial order by the timestamp column
+                "columnDefs": [{
+                    "targets": 'sortable',
+                    "orderable": true,
+                    "className": 'sort-asc',
+                }],
+            });
+
+            // Add event listener to handle sorting icons
+            $('#transactionsTable th.sortable').click(function() {
+                var column = table.column($(this).index());
+                column.order(column.order() === 'asc' ? 'desc' : 'asc').draw();
+            });
         });
     </script>
 {% endblock %}
