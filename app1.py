@@ -178,7 +178,8 @@ def analytics():
         return redirect(url_for('signin'))
 
     # Define the API URL
-    api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/lasttendays'
+    # api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/lasttendays'
+    api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/UserFullDetailsApi'
 
     # Define the request payload (data to be sent in the request body)
     payload = {'body': json.dumps({'user_id': session['user_id']})}
