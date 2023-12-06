@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+    <h1> Analytic page content</h1>
+    <h3>Your UserID is {{ user_id }}</h3>
+    <h4>Your last 10 transactions amount is ${{ total_amount_sum }}</h4>
+
+    <!-- Add Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div style="max-width: 600px; margin: auto;">
+        <canvas id="myPieChart" width="400" height="400"></canvas>
+    </div>
+
+    <!-- Add heading below the pie chart -->
+    <h4>Last 10 Transactions</h4>
+
+    <script>
+        // Extract data for the pie chart
+        var categories = {{ pie_chart_data | safe }};
+        
+        // Extract labels and data for Chart.js
+        var labels = categories.map(function(entry) {
+            return entry.category;
+        });
+
+        var data = categories.map(function(entry) {
+            return entry.totalAmount;
+        });
+
+        // Get the canvas element
+        var ctx = document.getElementById('myPieChart').getContext('2d');
+
+        // Create a pie chart
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)',
+                        'rgba(255, 159, 64, 0.8)'
+                        // Add more colors as needed
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                        // Add more colors as needed
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    position: 'right',
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                label += ': ';
+                                if (context.parsed.y !== null) {
+                                    label += '$' + context.parsed.y.toFixed(2);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

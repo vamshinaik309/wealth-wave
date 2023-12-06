@@ -1,0 +1,98 @@
+---
+swagger: "2.0"
+info:
+  version: "2023-11-25T03:23:39Z"
+  title: "BillDataProcessorAPI"
+host: "qqhx04wws7.execute-api.us-east-1.amazonaws.com"
+basePath: "/testStage"
+schemes:
+- "https"
+paths:
+  /autofill:
+    post:
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /savebill:
+    post:
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /upload:
+    post:
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"

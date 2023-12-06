@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block title %}Scan Bill{% endblock %}
+
+{% block content %}
+    <h1>Upload Bills Page</h1>
+    <h3>Your UserID is {{ user_id }}</h3>
+
+    <!-- Form for File Upload -->
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <!-- Upload Bill Image Button -->
+        <input type="file" id="billImageUpload" name="file" accept="image/*">
+        <button type="button" id="uploadBtn">Upload</button>
+    </form>
+
+    <div id="autoFillContainer">
+        <!-- Autofill Button (initially disabled) -->
+        <button id="autoFillBtn" disabled>AutoFill</button>
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" style="display: none;">
+            <img src="{{ url_for('static', filename='css/images/loading.gif') }}" alt="Loading...">
+        </div>
+    </div>
+    
+
+    <!-- Text Fields -->
+    <div>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date">
+    </div>
+    <div>
+        <label for="totalAmount">Total Amount:</label>
+        <input type="number" id="totalAmount" name="totalAmount" step="0.01">
+    </div>
+    <div>
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+            <option value="" selected>Select category</option>
+            <option value="groceries/food">Groceries/Food</option>
+            <option value="dining">Dining</option>
+            <option value="utilities">Utilities</option>
+            <option value="housing">Housing</option>
+            <option value="transportation">Transportation</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="clothing">Clothing</option>
+            <option value="education">Education</option>
+            <option value="alcohol/beverages">Alcohol/Beverages</option>
+            <option value="travel">Travel</option>
+            <option value="miscellaneous">Miscellaneous</option>
+        </select>             
+    </div>
+
+    <!-- Save Button -->
+    <button id="saveBtn" disabled>Save</button>
+    <button id="clearBtn">Clear</button>
+
+
+    <!-- JavaScript to Handle File Upload and Enable AutoFill -->
+    <script>
+        var uploadedFileKey = ''; // Variable to store the file key
+
+        function checkFields() {
+            var date = document.getElementById('date').value;
+            var totalAmount = document.getElementById('totalAmount').value;
+            var category = document.getElementById('category').value;
+
+            var saveButton = document.getElementById('saveBtn');
+            if (date && totalAmount && category) {
+                saveButton.disabled = false; // Enable button if all fields are filled
+            } else {
+                saveButton.disabled = true;  // Disable button if any field is empty
+            }
+        }       
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkFields();
+        });
+
+        document.getElementById('date').addEventListener('change', checkFields);
+        document.getElementById('totalAmount').addEventListener('input', checkFields);
+        document.getElementById('category').addEventListener('change', checkFields);
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+        document.getElementById('date').value = '';
+        document.getElementById('totalAmount').value = '';
+        document.getElementById('category').value = '';
+        // Reset any other fields you have
+        checkFields();
+        });
+
+
+        document.getElementById('uploadBtn').addEventListener('click', function() {
+            var fileInput = document.getElementById('billImageUpload');
+            if(fileInput.files.length > 0) {
+                var formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('user_id', '{{ user_id }}'); // Send the user ID along with the file
+
+                // Make the AJAX request to the Flask endpoint
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if(data.message === 'File uploaded successfully') {
+                        // Store the file key
+                        uploadedFileKey = data.file_key;
+                        // Enable the AutoFill button if the upload is successful
+                        document.getElementById('autoFillBtn').disabled = false;
+                    } else {
+                        // Handle any errors
+                        alert('File upload failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        // Further implementation for AutoFill button if needed
+        document.getElementById('autoFillBtn').addEventListener('click', function() {
+            var btn = this;
+            var spinner = document.getElementById('loadingSpinner');
+
+            // Show the spinner
+            spinner.style.display = 'block';
+
+            if (uploadedFileKey) {
+                fetch('/autofill', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ s3_file_key: uploadedFileKey })
+                })
+                .then(response => {
+                    // Check if the response is ok (status code 200)
+                    if (!response.ok) {
+                        throw new Error('Problem with the response');
+                    }
+                    return response.json();
+                })
+                .then(dataString => {
+                    const data = JSON.parse(dataString); // Parse the JSON string into an object
+                    console.log(data);
+                    // Update the fields with the extracted data
+                    if (data.date) {
+                        document.getElementById('date').value = data.date;
+                    }
+                    if (data.total_amount) {
+                        document.getElementById('totalAmount').value = data.total_amount;
+                    }
+                    if (data.category) {
+                        document.getElementById('category').value = data.category.toLowerCase();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error autofilling the data. Please try again.');
+                })
+                .finally(() => {
+                    // Hide the spinner regardless of success or failure
+                    spinner.style.display = 'none';
+                    checkFields();
+                });
+            } else {
+                alert('No file uploaded for AutoFill');
+                spinner.style.display = 'none'; // Hide spinner if no file is uploaded
+            }
+        });
+
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            // Retrieve data from form fields
+            var userId = '{{ user_id }}'; // Use Jinja templating to inject user_id
+            var date = document.getElementById('date').value;
+            var totalAmount = document.getElementById('totalAmount').value;
+            var category = document.getElementById('category').value;
+
+            // Prepare data to send
+            var dataToSave = {
+                user_id: userId,
+                timestamp: new Date().toISOString(), // Generate current timestamp
+                date: date,
+                totalAmount: totalAmount,
+                category: category,
+                uploadedFileKey: uploadedFileKey
+            };
+
+            fetch('/saveBillData', {  // Adjust the endpoint to match your Flask route
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToSave)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Problem with the response');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                alert('Data saved successfully');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to save data');
+            });
+        });
+
+    </script>
+{% endblock %}

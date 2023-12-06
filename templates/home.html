@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Home</title>
-</head>
-<body>
-    <h1>Welcome Home</h1>
-    <a href="/signout">Sign Out</a>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Home Wave{% endblock %}
+
+{% block content %}
+    <!-- Your home page content goes here -->
+    <h1>Welcome {{ user_name }}</h1>
+    <h3>Your UserID  is  {{ user_id }}</h3>
+{% endblock %}
