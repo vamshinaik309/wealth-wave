@@ -10,6 +10,9 @@
 
     <!-- Add Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Add D3.js library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 
     <!-- Add DataTables library and CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
@@ -17,40 +20,19 @@
 
     <!-- Custom CSS for the table -->
     <style>
-        #transactionsTable {
+        #barChart,
+        #donutChart {
             width: 100%;
+            height: 300px;
             margin-top: 20px;
-            border-collapse: collapse;
         }
 
-        #transactionsTable th, #transactionsTable td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        #transactionsTable th {
-            background-color: #f2f2f2;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        #transactionsTable th:hover {
-            background-color: #ddd;
-        }
-
-        #transactionsTable th:after {
-            content: ' ▼';
-        }
-
-        #transactionsTable th.sort-asc:after {
-            content: ' ▲';
-        }
-
-        #transactionsTable td {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .bar-chart-bar {
+            background-color: #4CAF50;
+            margin-bottom: 5px;
+            color: white;
+            text-align: right;
+            padding: 5px;
         }
     </style>
 
@@ -58,30 +40,11 @@
         <canvas id="myPieChart" width="400" height="400"></canvas>
     </div>
 
-    <!-- Add heading below the pie chart -->
-    <h4>Last 10 Transactions</h4>
-    <table id="transactionsTable" class="display">
-        <thead>
-            <tr>
-                <th class="sortable" data-column="date">Date</th>
-                <th class="sortable" data-column="totalAmount">Total Amount</th>
-                <th class="sortable" data-column="category">Category</th>
-                <th class="sortable" data-column="uploadedFileKey">File Key</th>
-                <th class="sortable" data-column="timestamp">Timestamp</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transaction in transactions %}
-                <tr>
-                    <td>{{ transaction['date'] }}</td>
-                    <td>${{ transaction['totalAmount'] }}</td>
-                    <td>{{ transaction['category'] }}</td>
-                    <td>{{ transaction['uploadedFileKey'] }}</td>
-                    <td>{{ transaction['timestamp'] }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Bar Chart Container -->
+    <div id="barChart"></div>
+
+    <!-- Donut Chart Container -->
+    <div id="donutChart"></div>
 
     <script>
         // Extract data for the pie chart
@@ -99,7 +62,7 @@
         // Get the canvas element
         var ctx = document.getElementById('myPieChart').getContext('2d');
 
-        // Create a pie chart
+        // Create a pie chart using Chart.js
         var myPieChart = new Chart(ctx, {
             type: 'pie',
             data: {
@@ -150,23 +113,85 @@
             }
         });
 
-        // Initialize DataTable
-        $(document).ready(function() {
-            var table = $('#transactionsTable').DataTable({
-                "scrollX": true, // Enable horizontal scrolling
-                "order": [[4, "desc"]], // Initial order by the timestamp column
-                "columnDefs": [{
-                    "targets": 'sortable',
-                    "orderable": true,
-                    "className": 'sort-asc',
-                }],
-            });
+        // Extract data for the bar chart
+        var barData = {{ bar_graph_data | safe }};
 
-            // Add event listener to handle sorting icons
-            $('#transactionsTable th.sortable').click(function() {
-                var column = table.column($(this).index());
-                column.order(column.order() === 'asc' ? 'desc' : 'asc').draw();
-            });
+        // Extract labels and data for D3.js bar graph
+        var barLabels = barData.map(function(entry) {
+            return entry.category;
         });
+
+        var barValues = barData.map(function(entry) {
+            return entry.totalAmount;
+        });
+
+        // Create the bar chart using D3.js
+        var barChartContainer = d3.select('#barChart');
+        var barChart = barChartContainer.selectAll('div').data(barValues).enter().append('div')
+            .style('width', function(d) {
+                return (d * 10) + 'px'; // Adjust the scaling factor as needed
+            })
+            .text(function(d, i) {
+                return barLabels[i] + ': $' + d.toFixed(2);
+            })
+            .attr('class', 'bar-chart-bar');
+
+        // Extract data for the donut chart
+        var donutData = {{ donut_graph_data | safe }};
+
+        // Extract labels and values for D3.js donut chart
+        var donutLabels = donutData.map(function(entry) {
+            return entry.label;
+        });
+
+        var donutValues = donutData.map(function(entry) {
+            return entry.value;
+        });
+
+        // Create the donut chart using D3.js
+        var donutChartContainer = d3.select('#donutChart');
+        var donutChartRadius = 150; // Set the desired radius
+
+        var donutChart = donutChartContainer.append('svg')
+            .attr('width', donutChartRadius * 2)
+            .attr('height', donutChartRadius * 2)
+            .append('g')
+            .attr('transform', 'translate(' + donutChartRadius + ',' + donutChartRadius + ')');
+
+        var donutColorScale = d3.scaleOrdinal()
+            .domain(donutLabels)
+            .range(d3.schemeCategory10); // Use a color scheme or customize as needed
+
+        var donutArc = d3.arc()
+            .innerRadius(donutChartRadius - 60) // Set the desired inner radius
+            .outerRadius(donutChartRadius);
+
+        var donutPie = d3.pie();
+
+        var donutChartPath = donutChart.selectAll('path').data(donutPie(donutValues))
+            .enter().append('path')
+            .attr('d', donutArc)
+            .attr('fill', function(_, i) {
+                return donutColorScale(i);
+            })
+            .attr('stroke', '#fff')
+            .style('stroke-width', '2px');
+
+        // Add labels to the donut chart
+        var donutChartText = donutChart.selectAll('text').data(donutPie(donutValues))
+            .enter().append('text')
+            .attr('transform', function(d) {
+                var pos = donutArc.centroid(d);
+                pos[0] *= 2.5; // Adjust label position
+                pos[1] *= 2.5; // Adjust label position
+                return 'translate(' + pos + ')';
+            })
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'middle')
+            .text(function(d, i) {
+                return donutLabels[i];
+            });
     </script>
+
+    
 {% endblock %}

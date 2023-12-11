@@ -25,7 +25,6 @@
                     <th>Date</th>
                     <th>Total Amount</th>
                     <th>Category</th>
-                    <th>File Key</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,7 +34,6 @@
                         <td>{{ transaction['date'] }}</td>
                         <td>${{ transaction['totalAmount'] }}</td>
                         <td>{{ transaction['category'] }}</td>
-                        <td>{{ transaction['uploadedFileKey'] }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

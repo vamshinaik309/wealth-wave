@@ -179,7 +179,6 @@ def analytics():
         return redirect(url_for('signin'))
 
     # Define the API URL
-    # api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/lasttendays'
     api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/UserFullDetailsApi'
 
     # Define the request payload (data to be sent in the request body)
@@ -218,13 +217,28 @@ def analytics():
             # Prepare data for last 10 transactions
             last_10_transactions = body_data[:10]
 
-            return render_template(
-                'analytics.html',
-                user_id=session['user_id'],
-                total_amount_sum=total_amount_sum,
-                pie_chart_data=json.dumps(pie_chart_data),
-                transactions=last_10_transactions
-            )
+            # return render_template('analytics.html',user_id=session['user_id'],total_amount_sum=total_amount_sum,
+            #     pie_chart_data=json.dumps(pie_chart_data),transactions=last_10_transactions
+            # )
+
+             # Prepare data for D3.js bar graph
+            bar_graph_data = [{'category': category, 'totalAmount': total} for category, total in category_totals.items()]
+
+            # Prepare data for D3.js donut graph
+            donut_graph_data = [{'label': label, 'value': value} for label, value in category_totals.items()]
+
+            # Include all necessary data in a single variable
+            frontend_data = {
+                'user_id': session['user_id'],
+                'total_amount_sum': total_amount_sum,
+                'pie_chart_data': pie_chart_data,
+                'transactions': last_10_transactions,
+                'bar_graph_data': bar_graph_data,
+                'donut_graph_data': donut_graph_data
+            }
+
+            return render_template('analytics.html', **frontend_data)
+        
         else:
             # Print an error message if the request was not successful
             print(f"Error fetching API data. Status code: {response.status_code}")
