@@ -2,6 +2,7 @@ from flask import Flask, redirect, request, render_template, url_for, session, j
 import boto3, requests
 import base64
 import json
+import jwt
 from jinja2 import Environment, FileSystemLoader
 from collections import defaultdict
 from flask import flash
@@ -63,8 +64,8 @@ def get_authenticated_user(access_token):
 
 def is_token_expired(access_token):
     try:
-       
-        decoded_token = cognito_client.decode_jwt_token(JWToken=access_token)
+        # Decode the token (without verifying, as we just want the expiry time)
+        decoded_token = jwt.decode(access_token, options={"verify_signature": False})
         expiration_time = decoded_token['exp']
         expiration_datetime = datetime.utcfromtimestamp(expiration_time)
 
