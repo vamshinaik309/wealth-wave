@@ -214,13 +214,6 @@ def analytics():
             # Prepare data for pie chart
             pie_chart_data = [{'category': category, 'totalAmount': total} for category, total in category_totals.items()]
 
-            # Prepare data for last 10 transactions
-            last_10_transactions = body_data[:10]
-
-            # return render_template('analytics.html',user_id=session['user_id'],total_amount_sum=total_amount_sum,
-            #     pie_chart_data=json.dumps(pie_chart_data),transactions=last_10_transactions
-            # )
-
              # Prepare data for D3.js bar graph
             bar_graph_data = [{'category': category, 'totalAmount': total} for category, total in category_totals.items()]
 
@@ -232,7 +225,6 @@ def analytics():
                 'user_id': session['user_id'],
                 'total_amount_sum': total_amount_sum,
                 'pie_chart_data': pie_chart_data,
-                'transactions': last_10_transactions,
                 'bar_graph_data': bar_graph_data,
                 'donut_graph_data': donut_graph_data
             }

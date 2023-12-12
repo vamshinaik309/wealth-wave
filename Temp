@@ -1,3 +1,5 @@
+# UserID is 3698229b-6393-4ef1-98b6-344602994745
+
 # Cognito Details
 COGNITO_USER_POOL_ID = 'us-east-1_92fhsj2cM'
 COGNITO_APP_CLIENT_ID = '33d5l6ooqfg4jnrohkv7r60sm9'
