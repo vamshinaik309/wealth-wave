@@ -9,13 +9,20 @@
     <h4>Your Total transaction amount is ${{ total_amount_sum }}</h4>
 
     <!-- Container for the line chart with scrolling and zooming features -->
-    <div style="position: relative; width: 80%; margin: auto; border: 1px solid #ccc;">
-        <canvas id="lineChart" width="200" height="100"></canvas>
+    <div style="position: relative; width: 60%; margin: auto; margin-bottom: 20px;">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h5>Line graph of last 30 days spending</h5>
+        </div>
+        <canvas id="lineChart" width="300" height="150"></canvas>
     </div>
 
-    <div style="position: relative; width: 80%; margin: auto;">
+    <!-- Container for the pie chart -->
+    <div style="position: relative; width: 50%; margin: auto;">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h5>Pie Chart Data of All Transactions from Beginning</h5>
+        </div>
         <canvas id="pieChart" width="200" height="200"></canvas>
-    </div
+    </div>
 
     <!-- Add this in the head section of your HTML -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -68,41 +75,7 @@
             }
         });
 
-        // Access the pie chart data passed from Flask
-    var pieChartData = {{ pie_chart_data | tojson | safe }};
-
-    // Create a pie chart using Chart.js
-    var pieCtx = document.getElementById('pieChart').getContext('2d');
-    var pieChart = new Chart(pieCtx, {
-        type: 'pie',
-        data: {
-            labels: pieChartData.map(entry => entry.category),
-            datasets: [{
-                data: pieChartData.map(entry => entry.totalAmount),
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.7)',
-                    'rgba(54, 162, 235, 0.7)',
-                    'rgba(255, 206, 86, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(153, 102, 255, 0.7)',
-                    'rgba(255, 159, 64, 0.7)',
-                    'rgba(255, 99, 132, 0.7)',
-                    'rgba(54, 162, 235, 0.7)',
-                    'rgba(255, 206, 86, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(153, 102, 255, 0.7)',
-                    'rgba(255, 159, 64, 0.7)',
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            legend: {
-                position: 'right'
-            }
-        }
-    });
-
+      
     // Access the pie chart data passed from Flask
     var pieChartData = {{ pie_chart_data | tojson | safe }};
 
