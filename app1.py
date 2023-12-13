@@ -339,6 +339,9 @@ def analytics():
                 pred_cat_list.append({'category': category, 'predicted_amount': next_month_prediction[0]})
 
 
+            
+            pie_chart_data = sorted(pie_chart_data, key=lambda x: x['category'].lower())
+            pred_cat_list = sorted(pred_cat_list, key=lambda x: x['category'].lower())
             print(pie_chart_data)
             print(pred_cat_list)
             # Include all necessary data in a single variable
