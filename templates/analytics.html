@@ -16,6 +16,14 @@
         <canvas id="lineChart" width="300" height="150"></canvas>
     </div>
 
+    <!-- Container for the line chart for the last 12 months -->
+    <div style="position: relative; width: 60%; margin: auto; margin-bottom: 20px;">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h5 style="font-size: 20px; color: #009900;">Line graph of last 12 months spending</h5>
+        </div>
+        <canvas id="lineChart12Months" width="300" height="150"></canvas>
+    </div>
+
     <!-- Container for the pie chart -->
     <div style="position: relative; width: 50%; margin: auto;">
         <div style="text-align: center; margin-bottom: 10px;">
@@ -30,8 +38,11 @@
 
     <!-- Add this where you want to render the line chart -->
     <script>
+
+
+        ////////////////////////////////////////////////line grah last 30 days///////////////////////////////
         // Access the line chart data passed from Flask
-        var lineChartData = {{ line_chart_data | tojson | safe }};
+        var lineChartData = {{ line_chart_data_30_days | tojson | safe }};
 
         // Create a line chart using Chart.js
         var ctx = document.getElementById('lineChart').getContext('2d');
@@ -76,7 +87,42 @@
             }
         });
 
-      
+        ///////////////////////////////////////////line grahs last 12 months //////////////////////////////////
+        // Access the line chart data passed from Flask for the last 12 months
+        var lineChartData12Months = {{ line_chart_data_12_months | tojson | safe }};
+
+        // Create a line chart for the last 12 months using Chart.js
+        var ctx12Months = document.getElementById('lineChart12Months').getContext('2d');
+        var lineChart12Months = new Chart(ctx12Months, {
+            type: 'line',
+            data: {
+                labels: lineChartData12Months.labels,
+                datasets: [{
+                    label: 'Total Amount',
+                    data: lineChartData12Months.data,
+                    borderColor: 'rgba(255, 99, 132, 1)',  // Choose a different color
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month'
+                        }
+                    }],
+                    y: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+    ///////////////////////////////////////////////////////////////pie chart//////////////////////////////////////
     // Access the pie chart data passed from Flask
     var pieChartData = {{ pie_chart_data | tojson | safe }};
 

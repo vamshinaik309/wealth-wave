@@ -231,8 +231,8 @@ def analytics():
             pie_chart_data = [{'category': category, 'totalAmount': total} for category, total in category_totals.items()]
 
 
-            ##################line graph##########
-             # Sort the data by date
+            ##################line graph for last 30 days##########
+            # Sort the data by date
             sorted_body_data = sorted(body_data, key=lambda x: x['date'])
 
             # Filter data for the last 30 days
@@ -243,21 +243,35 @@ def analytics():
             for entry in last_30_days_data:
                 date_totals[entry['date']] += float(entry['totalAmount'])
 
-            # Prepare data for line graph
-            line_chart_data = {
+            # Prepare data for line graph (last 30 days)
+            line_chart_data_30_days = {
                 'labels': list(date_totals.keys()),
                 'data': list(date_totals.values())
             }
 
-            print(line_chart_data)
-            print(pie_chart_data)
+            ##################line graph for last 12 months##########
+            # Filter data for the last 12 months
+            last_12_months_data = [entry for entry in sorted_body_data if datetime.now() - datetime.strptime(entry['date'], '%Y-%m-%d') <= timedelta(days=365)]
+
+            # Use a defaultdict to accumulate totalAmount values for each month
+            month_totals = defaultdict(float)
+            for entry in last_12_months_data:
+                year_month = entry['date'][:7]  # Extract the year and month part
+                month_totals[year_month] += float(entry['totalAmount'])
+
+            # Prepare data for line graph (last 12 months)
+            line_chart_data_12_months = {
+                'labels': [datetime.strptime(date, '%Y-%m').strftime('%b %Y') for date in month_totals.keys()],
+                'data': list(month_totals.values())
+            }
 
             # Include all necessary data in a single variable
             frontend_data = {
                 'user_id': session['user_id'],
                 'total_amount_sum': total_amount_sum,
                 'pie_chart_data': pie_chart_data,
-                'line_chart_data': line_chart_data
+                'line_chart_data_30_days': line_chart_data_30_days,
+                'line_chart_data_12_months': line_chart_data_12_months
             }
 
             return render_template('analytics.html', **frontend_data)
