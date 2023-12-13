@@ -6,6 +6,17 @@
 {% block content %}
     <h1> Analytic page content</h1>
     <h3>Your UserID is {{ user_id }}</h3>
+    
+    <!-- Display Percentage change in last month -->
+    <div style="text-align: center; margin-top: 20px;">
+        {% if percentage_increase_last_month > 0 %}
+        <h4 style="font-size: 20px; color: #ff6600;">Percentage Increase Last Month: {{ percentage_increase_last_month | round(2) }}%</h4>
+        {% elif percentage_increase_last_month < 0 %}
+            <h4 style="font-size: 20px; color: #00ffe1;">Percentage Decrease Last Month: {{ percentage_increase_last_month | round(2) }}%</h4>
+        {% else %}
+            <h4 style="font-size: 20px; color: #ae00ff;">No Percentage Change Last Month</h4>
+        {% endif %}
+    </div>
 
     <!-- Display Your Total transaction amount -->
     <div style="text-align: center; margin-top: 20px;">

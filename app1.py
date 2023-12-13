@@ -272,11 +272,23 @@ def analytics():
             # Calculate the total amount spent in the current month
             total_amount_current_month = sum(float(entry['totalAmount']) for entry in current_month_data)
 
+            ##################percentage increase from last month to the month before##########
+            # Calculate the total amount spent in the last month
+            total_amount_last_month = line_chart_data_12_months['data'][-2] if line_chart_data_12_months['data'] else 0
+
+            # Calculate the total amount spent in the month before the last month
+            total_amount_last_last_month = line_chart_data_12_months['data'][-3] if len(line_chart_data_12_months['data']) > 1 else 0
+
+            # Calculate the percentage increase
+            percentage_increase = ((total_amount_last_month - total_amount_last_last_month) / total_amount_last_last_month) * 100 if total_amount_last_last_month != 0 else 0
+            print(total_amount_last_month)
+            print(total_amount_last_last_month)
             # Include all necessary data in a single variable
             frontend_data = {
                 'user_id': session['user_id'],
                 'total_amount_sum': total_amount_sum,
                 'total_amount_current_month': total_amount_current_month,
+                'percentage_increase_last_month': percentage_increase,
                 'pie_chart_data': pie_chart_data,
                 'line_chart_data_30_days': line_chart_data_30_days,
                 'line_chart_data_12_months': line_chart_data_12_months
