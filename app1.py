@@ -230,19 +230,34 @@ def analytics():
             # Prepare data for pie chart
             pie_chart_data = [{'category': category, 'totalAmount': total} for category, total in category_totals.items()]
 
-             # Prepare data for D3.js bar graph
-            bar_graph_data = [{'category': category, 'totalAmount': total} for category, total in category_totals.items()]
 
-            # Prepare data for D3.js donut graph
-            donut_graph_data = [{'label': label, 'value': value} for label, value in category_totals.items()]
+            ##################line graph##########
+             # Sort the data by date
+            sorted_body_data = sorted(body_data, key=lambda x: x['date'])
+
+            # Filter data for the last 30 days
+            last_30_days_data = [entry for entry in sorted_body_data if datetime.now() - datetime.strptime(entry['date'], '%Y-%m-%d') <= timedelta(days=30)]
+
+            # Use a defaultdict to accumulate totalAmount values for each date
+            date_totals = defaultdict(float)
+            for entry in last_30_days_data:
+                date_totals[entry['date']] += float(entry['totalAmount'])
+
+            # Prepare data for line graph
+            line_chart_data = {
+                'labels': list(date_totals.keys()),
+                'data': list(date_totals.values())
+            }
+
+            print(line_chart_data)
+            print(pie_chart_data)
 
             # Include all necessary data in a single variable
             frontend_data = {
                 'user_id': session['user_id'],
                 'total_amount_sum': total_amount_sum,
                 'pie_chart_data': pie_chart_data,
-                'bar_graph_data': bar_graph_data,
-                'donut_graph_data': donut_graph_data
+                'line_chart_data': line_chart_data
             }
 
             return render_template('analytics.html', **frontend_data)

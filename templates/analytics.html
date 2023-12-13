@@ -8,189 +8,135 @@
     <h3>Your UserID is {{ user_id }}</h3>
     <h4>Your Total transaction amount is ${{ total_amount_sum }}</h4>
 
-    <!-- Add Chart.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Add D3.js library -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-
-    <!-- Add DataTables library and CSS -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
-
-    <!-- Custom CSS for the table -->
-    <style>
-        #barChart,
-        #donutChart {
-            width: 100%;
-            height: 300px;
-            margin-top: 20px;
-        }
-
-        .bar-chart-bar {
-            background-color: #4CAF50;
-            margin-bottom: 5px;
-            color: white;
-            text-align: right;
-            padding: 5px;
-        }
-    </style>
-
-    <div style="max-width: 600px; margin: auto;">
-        <canvas id="myPieChart" width="400" height="400"></canvas>
+    <!-- Container for the line chart with scrolling and zooming features -->
+    <div style="position: relative; width: 80%; margin: auto; border: 1px solid #ccc;">
+        <canvas id="lineChart" width="200" height="100"></canvas>
     </div>
 
-    <!-- Bar Chart Container -->
-    <div id="barChart"></div>
+    <div style="position: relative; width: 80%; margin: auto;">
+        <canvas id="pieChart" width="200" height="200"></canvas>
+    </div
 
-    <!-- Donut Chart Container -->
-    <div id="donutChart"></div>
+    <!-- Add this in the head section of your HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Add this where you want to render the line chart -->
     <script>
-        // Extract data for the pie chart
-        var categories = {{ pie_chart_data | safe }};
-        
-        // Extract labels and data for Chart.js
-        var labels = categories.map(function(entry) {
-            return entry.category;
-        });
+        // Access the line chart data passed from Flask
+        var lineChartData = {{ line_chart_data | tojson | safe }};
 
-        var data = categories.map(function(entry) {
-            return entry.totalAmount;
-        });
-
-        // Define an array of 12 different colors for the pie chart
-        var pieChartColors = [
-            'rgba(255, 99, 132, 0.8)',
-            'rgba(54, 162, 235, 0.8)',
-            'rgba(255, 206, 86, 0.8)',
-            'rgba(75, 192, 192, 0.8)',
-            'rgba(153, 102, 255, 0.8)',
-            'rgba(255, 159, 64, 0.8)',
-            'rgba(255, 0, 0, 0.8)',
-            'rgba(0, 255, 0, 0.8)',
-            'rgba(0, 0, 255, 0.8)',
-            'rgba(128, 128, 0, 0.8)',
-            'rgba(128, 0, 128, 0.8)',
-            'rgba(0, 128, 128, 0.8)'
-            // Add more colors as needed
-        ];
-
-        // Get the canvas element
-        var ctx = document.getElementById('myPieChart').getContext('2d');
-
-        // Create a pie chart using Chart.js
-        var myPieChart = new Chart(ctx, {
-            type: 'pie',
+        // Create a line chart using Chart.js
+        var ctx = document.getElementById('lineChart').getContext('2d');
+        var lineChart = new Chart(ctx, {
+            type: 'line',
             data: {
-                labels: labels,
+                labels: lineChartData.labels,
                 datasets: [{
-                    data: data,
-                    backgroundColor: pieChartColors,
-                    borderColor: pieChartColors.map(color => color.replace('0.8', '1')), // Make borders opaque
-                    borderWidth: 1
+                    label: 'Total Amount',
+                    data: lineChartData.data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                legend: {
-                    position: 'right',
+                scales: {
+                    x: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        }
+                    }],
+                    y: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
                 },
                 plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                var label = context.label || '';
-                                label += ': ';
-                                if (context.parsed.y !== null) {
-                                    label += '$' + context.parsed.y.toFixed(2);
-                                }
-                                return label;
-                            }
+                    zoom: {
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                        },
+                        zoom: {
+                            enabled: true,
+                            mode: 'x',
                         }
                     }
                 }
             }
         });
 
-        // Extract data for the bar chart
-        var barData = {{ bar_graph_data | safe }};
+        // Access the pie chart data passed from Flask
+    var pieChartData = {{ pie_chart_data | tojson | safe }};
 
-        // Extract labels and data for D3.js bar graph
-        var barLabels = barData.map(function(entry) {
-            return entry.category;
-        });
+    // Create a pie chart using Chart.js
+    var pieCtx = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: pieChartData.map(entry => entry.category),
+            datasets: [{
+                data: pieChartData.map(entry => entry.totalAmount),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            legend: {
+                position: 'right'
+            }
+        }
+    });
 
-        var barValues = barData.map(function(entry) {
-            return entry.totalAmount;
-        });
+    // Access the pie chart data passed from Flask
+    var pieChartData = {{ pie_chart_data | tojson | safe }};
 
-        // Create the bar chart using D3.js
-        var barChartContainer = d3.select('#barChart');
-        var barChart = barChartContainer.selectAll('div').data(barValues).enter().append('div')
-            .style('width', function(d) {
-                return (d * 10) + 'px'; // Adjust the scaling factor as needed
-            })
-            .text(function(d, i) {
-                return barLabels[i] + ': $' + d.toFixed(2);
-            })
-            .attr('class', 'bar-chart-bar');
+    // Create a pie chart using Chart.js
+    var pieCtx = document.getElementById('pieChart').getContext('2d');
+    var pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: pieChartData.map(entry => entry.category),
+            datasets: [{
+                data: pieChartData.map(entry => entry.totalAmount),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            legend: {
+                position: 'right'
+            }
+        }
+    });
 
-        // Extract data for the donut chart
-        var donutData = {{ donut_graph_data | safe }};
-
-        // Extract labels and values for D3.js donut chart
-        var donutLabels = donutData.map(function(entry) {
-            return entry.label;
-        });
-
-        var donutValues = donutData.map(function(entry) {
-            return entry.value;
-        });
-
-        // Create the donut chart using D3.js
-        var donutChartContainer = d3.select('#donutChart');
-        var donutChartRadius = 150; // Set the desired radius
-
-        var donutChart = donutChartContainer.append('svg')
-            .attr('width', donutChartRadius * 2)
-            .attr('height', donutChartRadius * 2)
-            .append('g')
-            .attr('transform', 'translate(' + donutChartRadius + ',' + donutChartRadius + ')');
-
-        var donutColorScale = d3.scaleOrdinal()
-            .domain(donutLabels)
-            .range(d3.schemeCategory10); // Use a color scheme or customize as needed
-
-        var donutArc = d3.arc()
-            .innerRadius(donutChartRadius - 60) // Set the desired inner radius
-            .outerRadius(donutChartRadius);
-
-        var donutPie = d3.pie();
-
-        var donutChartPath = donutChart.selectAll('path').data(donutPie(donutValues))
-            .enter().append('path')
-            .attr('d', donutArc)
-            .attr('fill', function(_, i) {
-                return donutColorScale(i);
-            })
-            .attr('stroke', '#fff')
-            .style('stroke-width', '2px');
-
-        // Add labels to the donut chart
-        var donutChartText = donutChart.selectAll('text').data(donutPie(donutValues))
-            .enter().append('text')
-            .attr('transform', function(d) {
-                var pos = donutArc.centroid(d);
-                pos[0] *= 2.5; // Adjust label position
-                pos[1] *= 2.5; // Adjust label position
-                return 'translate(' + pos + ')';
-            })
-            .attr('dy', '0.35em')
-            .attr('text-anchor', 'middle')
-            .text(function(d, i) {
-                return donutLabels[i];
-            });
     </script>
 {% endblock %}
