@@ -265,15 +265,22 @@ def analytics():
                 'data': list(month_totals.values())
             }
 
+            ##################total amount for the current month##########
+            # Filter data for the current month
+            current_month_data = [entry for entry in sorted_body_data if datetime.now().strftime('%Y-%m') == entry['date'][:7]]
+
+            # Calculate the total amount spent in the current month
+            total_amount_current_month = sum(float(entry['totalAmount']) for entry in current_month_data)
+
             # Include all necessary data in a single variable
             frontend_data = {
                 'user_id': session['user_id'],
                 'total_amount_sum': total_amount_sum,
+                'total_amount_current_month': total_amount_current_month,
                 'pie_chart_data': pie_chart_data,
                 'line_chart_data_30_days': line_chart_data_30_days,
                 'line_chart_data_12_months': line_chart_data_12_months
             }
-
             return render_template('analytics.html', **frontend_data)
         
         else:

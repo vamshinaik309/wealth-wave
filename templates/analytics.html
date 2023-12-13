@@ -6,7 +6,16 @@
 {% block content %}
     <h1> Analytic page content</h1>
     <h3>Your UserID is {{ user_id }}</h3>
-    <h4>Your Total transaction amount is ${{ total_amount_sum }}</h4>
+
+    <!-- Display Your Total transaction amount -->
+    <div style="text-align: center; margin-top: 20px;">
+        <h5 style="font-size: 20px; color: #ae00ff;">Your Total transaction amount is ${{ total_amount_sum }}</h5>
+    </div>
+
+    <!-- Display total amount spent in the current month -->
+    <div style="text-align: center; margin-top: 20px;">
+        <h5 style="font-size: 20px; color: #ae00ff;">Total Amount Spent in Current Month: ${{ total_amount_current_month }}</h5>
+    </div>
 
     <!-- Container for the line chart with scrolling and zooming features -->
     <div style="position: relative; width: 60%; margin: auto; margin-bottom: 20px;">
