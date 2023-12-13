@@ -8,6 +8,13 @@ from collections import defaultdict
 from flask import flash
 from datetime import datetime, timedelta
 
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from collections import defaultdict
+import numpy as np
+
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key
@@ -278,11 +285,62 @@ def analytics():
 
             # Calculate the total amount spent in the month before the last month
             total_amount_last_last_month = line_chart_data_12_months['data'][-3] if len(line_chart_data_12_months['data']) > 1 else 0
-
+            
             # Calculate the percentage increase
             percentage_increase = ((total_amount_last_month - total_amount_last_last_month) / total_amount_last_last_month) * 100 if total_amount_last_last_month != 0 else 0
+            
+            
+            #####################calculate last 12 months category wise data##################################
+            # Use a defaultdict to accumulate totalAmount values for each month and category
+            # Use a defaultdict to accumulate totalAmount values for each category over the last 12 months
+            current_month_year = datetime.now().strftime('%Y-%m')
+            
+            category_totals_12_months = defaultdict(lambda: set())
+            for entry in last_12_months_data:
+                # Skip the current month's data
+                if entry['date'][:7] == current_month_year:
+                    continue
+                
+                category_totals_12_months[entry['category']].add(float(entry['totalAmount']))
+
+            
+
+            # Convert the sets to lists for easier serialization to JSON
+            category_totals_12_months = {category: list(total_amounts) for category, total_amounts in category_totals_12_months.items()}
+
             print(total_amount_last_month)
             print(total_amount_last_last_month)
+            print(line_chart_data_12_months)
+            print("----------------------")
+            print(category_totals_12_months)
+
+            pred_cat_list =[]
+            for category, values in category_totals_12_months.items():
+                list_cat = category_totals_12_months[category]
+                 
+                x = np.arange(1,len(list_cat) + 1).reshape(-1,1)
+                y = np.array(list_cat)
+
+                # x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2,random_state=42)
+                 
+                model = LinearRegression()
+
+                model.fit(x,y)
+
+                # predictions = model.predict(x_test)
+
+                #  mse = mean_squared_error(y_test)
+                next_month_number = len(list_cat)+1
+                next_month_prediction = model.predict(np.array([[next_month_number]]))
+                if next_month_prediction[0] < 0 :
+                    next_month_prediction[0] = 0
+                
+                # pred_cat_list[category] = next_month_prediction
+                pred_cat_list.append({'category': category, 'predicted_amount': next_month_prediction[0]})
+
+
+            print(pie_chart_data)
+            print(pred_cat_list)
             # Include all necessary data in a single variable
             frontend_data = {
                 'user_id': session['user_id'],
@@ -291,7 +349,8 @@ def analytics():
                 'percentage_increase_last_month': percentage_increase,
                 'pie_chart_data': pie_chart_data,
                 'line_chart_data_30_days': line_chart_data_30_days,
-                'line_chart_data_12_months': line_chart_data_12_months
+                'line_chart_data_12_months': line_chart_data_12_months,
+                'pred_cat_list' : pred_cat_list
             }
             return render_template('analytics.html', **frontend_data)
         
