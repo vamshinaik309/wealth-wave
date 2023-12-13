@@ -44,12 +44,20 @@
         <canvas id="lineChart12Months" width="300" height="150"></canvas>
     </div>
 
-    <!-- Container for the pie chart -->
+    <!-- Container for the pie chart of all transactions -->
     <div style="position: relative; width: 50%; margin: auto;">
         <div style="text-align: center; margin-bottom: 10px;">
             <h5 style="font-size: 20px; color: #7300ff;">Pie Chart Data of All Transactions from Beginning</h5>
         </div>
         <canvas id="pieChart" width="200" height="200"></canvas>
+    </div>
+
+    <!-- Container for the prediction pie chart -->
+    <div style="position: relative; width: 40%; margin: auto;">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h5 style="font-size: 20px; color: #ff9966;">Pie Chart Data for Prediction of Categories in this month</h5>
+        </div>
+        <canvas id="predPieChart" width="200" height="200"></canvas>
     </div>
 
 
@@ -142,7 +150,7 @@
             }
         });
 
-    ///////////////////////////////////////////////////////////////pie chart//////////////////////////////////////
+    ///////////////////////////////////////////////////////////////pie chart of total transactions//////////////////////////////////////
     // Access the pie chart data passed from Flask
     var pieChartData = {{ pie_chart_data | tojson | safe }};
 
@@ -170,6 +178,30 @@
             labels: pieChartData.map(entry => entry.category),
             datasets: [{
                 data: pieChartData.map(entry => entry.totalAmount),
+                backgroundColor: additionalColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            legend: {
+                position: 'right'
+            }
+        }
+    });
+
+
+    /////////////////////////////////pie chart of prediction of categories///////////////////
+    // Access the second pie chart data passed from Flask
+    var predPieChartData = {{ pred_cat_list | tojson | safe }};
+
+    // Create a second pie chart using Chart.js
+    var predPieCtx = document.getElementById('predPieChart').getContext('2d');
+    var predPieChart = new Chart(predPieCtx, {
+        type: 'pie',
+        data: {
+            labels: predPieChartData.map(entry => entry.category),
+            datasets: [{
+                data: predPieChartData.map(entry => entry.predicted_amount),
                 backgroundColor: additionalColors,
                 borderWidth: 1
             }]
