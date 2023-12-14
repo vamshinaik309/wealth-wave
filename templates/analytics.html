@@ -80,10 +80,6 @@
             <canvas id="pieChart"></canvas>
         </div>
         
-        <div class="chart">
-            <h5 class="text-center chart-title">Pie Chart Data for Prediction of Categories in This Month</h5>
-            <canvas id="predPieChart"></canvas>
-        </div>
     </div>
 </div>
 
@@ -204,28 +200,6 @@
         }
     });
 
-    // Access the prediction pie chart data passed from Flask
-    var predPieChartData = {{ pred_cat_list | tojson | safe }};
-
-    // Initialize the prediction pie chart
-    var predPieCtx = document.getElementById('predPieChart').getContext('2d');
-    var predPieChart = new Chart(predPieCtx, {
-        type: 'pie',
-        data: {
-            labels: predPieChartData.map(entry => entry.category),
-            datasets: [{
-                data: predPieChartData.map(entry => entry.predicted_amount),
-                backgroundColor: pieChartColors,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            legend: {
-                position: 'right'
-            }
-        }
-    });
 </script>
 
 {% endblock %}
