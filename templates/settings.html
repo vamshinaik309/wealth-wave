@@ -4,6 +4,51 @@
 {% block title %}Profile Settings{% endblock %}
 
 {% block content %}
-    <h1> Settings page content</h1>
-    <h3>Your UserID  is  {{ user_id }}</h3>
+<div class="container settings-page">
+    <h1 class="text-center my-4">Profile Settings</h1>
+
+    <!-- User ID Display -->
+    <h3 class="text-center mb-4">Your UserID: {{ user_id }}</h3>
+
+    <!-- Profile Photo Section -->
+    <div class="profile-photo-section text-center mb-4">
+        <img src="{{ user_photo }}" alt="Profile Photo" id="profilePhoto" class="profile-photo mb-3">
+        <input type="file" id="photoUpload" name="photoUpload" accept="image/png, image/jpeg">
+    </div>
+
+    <!-- Name Update Section -->
+    <div class="name-update-section mb-4">
+        <label for="nameInput">Name</label>
+        <input type="text" id="nameInput" name="name" placeholder="Enter your name" value="{{ user_name }}">
+    </div>
+
+    <!-- Email Frequency Dropdown -->
+    <div class="email-frequency-section mb-4">
+        <label for="emailFrequency">Email Frequency</label>
+        <select id="emailFrequency" name="emailFrequency">
+            <option value="weekly" {% if email_frequency == 'weekly' %} selected {% endif %}>Weekly</option>
+            <option value="monthly" {% if email_frequency == 'monthly' %} selected {% endif %}>Monthly</option>
+            <option value="yearly" {% if email_frequency == 'yearly' %} selected {% endif %}>Yearly</option>
+        </select>
+    </div>
+
+    <!-- Save Button -->
+    <div class="save-button-section text-center">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+</div>
+
+<script>
+    document.getElementById('photoUpload').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profilePhoto').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
 {% endblock %}
