@@ -9,8 +9,8 @@ from flask import flash
 from datetime import datetime, timedelta
 
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure secret key
+application = Flask(__name__)
+application.secret_key = 'radom_secret_key'  # Replace with a secure secret key
 
 # AWS Cognito Configuration
 COGNITO_USER_POOL_ID = 'us-east-1_mV9RmoPzS'
@@ -35,11 +35,11 @@ cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
 def is_authenticated():
     return 'user_id' in session and 'user_name' in session and 'user_email' in session
 
-@app.route('/')
+@application.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/signin')
+@application.route('/signin')
 def signin():
     return redirect(f"{COGNITO_DOMAIN}/login?response_type=code&client_id={COGNITO_APP_CLIENT_ID}&redirect_uri={REDIRECT_URI}")
 
@@ -58,7 +58,7 @@ def get_authenticated_user(access_token):
     except Exception as e:
         print(f"Error getting user information: {e}")
         # Log the error for further analysis
-        app.logger.error(f"Error getting user information: {e}")
+        application.logger.error(f"Error getting user information: {e}")
         return None
 
 
@@ -72,10 +72,10 @@ def is_token_expired(access_token):
         return expiration_datetime < datetime.utcnow()
 
     except Exception as e:
-        app.logger.error(f"Error checking token expiration: {e}")
+        application.logger.error(f"Error checking token expiration: {e}")
         return False  
 
-@app.route('/home')
+@application.route('/home')
 def home():
     print("Entering /home route")
     
@@ -98,7 +98,7 @@ def home():
                 api_data = response.json()
                 body_data = json.loads(api_data.get('body', '[]'))
                 transactions = body_data[:10]  # Take the first 10 transactions
-
+                #print(transactions)
                 # Calculate total amount
                 total_amount = sum(float(entry.get('totalAmount', 0)) for entry in transactions)
 
@@ -148,8 +148,26 @@ def home():
             session['user_email']= user_info['user_email']
             print(session)
             if user_info:
-                print("Rendering home.html")
-                return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'], user_email=user_info['user_email'])
+                api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/lasttendays'
+                payload = {'body': json.dumps({'user_id': session['user_id']})}
+                response = requests.get(api_url, data=json.dumps(payload))
+
+                if response.status_code == 200:
+                    api_data = response.json()
+                    body_data = json.loads(api_data.get('body', '[]'))
+                    transactions = body_data[:10]  # Take the first 10 transactions
+                    #print(transactions)
+                    # Calculate total amount
+                    total_amount = sum(float(entry.get('totalAmount', 0)) for entry in transactions)
+
+                    # Render home.html with user information, last 10 transactions, and total amount
+                    return render_template('home.html', user_id=user_info['user_id'],
+                                            user_name=user_info['user_name'],
+                                            user_email=user_info['user_email'],
+                                            transactions=transactions,
+                                            total_amount=total_amount)
+                # print("Rendering home.html")
+                # return render_template('home.html', user_id=user_info['user_id'], user_name=user_info['user_name'], user_email=user_info['user_email'])
             else:
                 print("Error retrieving user information")
                 # Handle error retrieving user information
@@ -158,7 +176,7 @@ def home():
         except Exception as e:
             print(f"Authentication error: {e}")
             # Log the error for further analysis
-            app.logger.error(f"Authentication error: {e}")
+            application.logger.error(f"Authentication error: {e}")
             print("Rendering error.html")
             # Handle authentication failure gracefully, e.g., redirect to a specific error page
             return render_template('error.html', error_message="Authentication failed. Please try again.")
@@ -166,13 +184,13 @@ def home():
     print("Redirecting to /signin")
     return redirect(url_for('signin'))
 
-@app.route('/uploadbill')
+@application.route('/uploadbill')
 def uploadbill():
     if not is_authenticated():
         return redirect(url_for('signin'))
     return render_template('uploadbill.html', user_id=session['user_id'])
 
-@app.route('/analytics')
+@application.route('/analytics')
 def analytics():
     # Check if the user is authenticated
     if not is_authenticated():
@@ -248,7 +266,7 @@ def analytics():
         print(f"Error decoding JSON: {e}")
 
 # api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/export/daterange'
-@app.route('/exportdata', methods=['GET', 'POST'])
+@application.route('/exportdata', methods=['GET', 'POST'])
 def exportdata():
     if not is_authenticated():
         return redirect(url_for('signin'))
@@ -297,19 +315,19 @@ def exportdata():
 
     return render_template('exportdata.html', user_id=session['user_id'])
 
-@app.route('/settings')
+@application.route('/settings')
 def settings():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
     return render_template('settings.html', user_id=session['user_id'],user_email=session['user_email'])
 
-@app.route('/signout')
+@application.route('/signout')
 def signout():
     session.clear()
     return redirect(url_for('index'))
 
-@app.route('/upload', methods=['POST'])
+@application.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
@@ -339,7 +357,7 @@ def upload_file():
         # There was an error, forward the error message
         return jsonify(response.json()), response.status_code
 
-@app.route('/autofill', methods=['POST'])
+@application.route('/autofill', methods=['POST'])
 def auto_fill():
     data = request.json
     s3_file_key = data.get('s3_file_key')
@@ -356,7 +374,7 @@ def auto_fill():
     # Return the response to the frontend
     return jsonify(response.json()), response.status_code
 
-@app.route('/saveBillData', methods=['POST'])
+@application.route('/saveBillData', methods=['POST'])
 def save_bill_data():
     # Get the data from the request
     data = request.json
@@ -371,4 +389,4 @@ def save_bill_data():
         return jsonify(response.json()), response.status_code
 
 if __name__ == '__main__':
-    app.run(debug=True,port = 5001)
+    application.run(debug=True,port = 5001)
