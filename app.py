@@ -216,8 +216,8 @@ def analytics():
         # Make a request to the API
         response = requests.get(api_url, data=json.dumps(payload))
 
-        print(response)
-        print("---------------------")
+        # print(response)
+        # print("---------------------")
 
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
@@ -296,8 +296,6 @@ def analytics():
             
             
             #####################calculate last 12 months category wise data##################################
-            # Use a defaultdict to accumulate totalAmount values for each month and category
-            # Use a defaultdict to accumulate totalAmount values for each category over the last 12 months
             current_month_year = datetime.now().strftime('%Y-%m')
             
             category_totals_12_months = defaultdict(lambda: set())
@@ -313,11 +311,95 @@ def analytics():
             # Convert the sets to lists for easier serialization to JSON
             category_totals_12_months = {category: list(total_amounts) for category, total_amounts in category_totals_12_months.items()}
 
-            print(total_amount_last_month)
-            print(total_amount_last_last_month)
-            print(line_chart_data_12_months)
-            print("----------------------")
-            print(category_totals_12_months)
+            # print(total_amount_last_month)
+            # print(total_amount_last_last_month)
+            # print(line_chart_data_12_months)
+            # print("----------------------")
+            # print(category_totals_12_months)
+
+            pie_chart_data = sorted(pie_chart_data, key=lambda x: x['category'].lower())
+            # print(pie_chart_data)
+            # Include all necessary data in a single variable
+            frontend_data = {
+                'user_id': session['user_id'],
+                'total_amount_sum': total_amount_sum,
+                'total_amount_current_month': total_amount_current_month,
+                'percentage_increase_last_month': percentage_increase,
+                'pie_chart_data': pie_chart_data,
+                'line_chart_data_30_days': line_chart_data_30_days,
+                'line_chart_data_12_months': line_chart_data_12_months
+            }
+            return render_template('analytics.html', **frontend_data)
+        
+        else:
+            # Print an error message if the request was not successful
+            print(f"Error fetching API data. Status code: {response.status_code}")
+            return render_template('analytics.html', user_id=session['user_id'], total_amount_sum=0, pie_chart_data="[]", transactions=[])
+
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+
+
+
+
+
+
+
+@app.route('/predictions')
+def predictions():
+    # Check if the user is authenticated
+    if not is_authenticated():
+        return redirect(url_for('signin'))
+
+    # Define the API URL
+    api_url = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/stage1/home/UserFullDetailsApi'
+
+    # Define the request payload (data to be sent in the request body)
+    payload = {'body': json.dumps({'user_id': session['user_id']})}
+
+    try:
+        # Make a request to the API
+        response = requests.get(api_url, data=json.dumps(payload))
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse the JSON response
+            api_data = response.json()
+
+            # Extract 'body' from api_data or provide an empty list as a default
+            body_data = json.loads(api_data.get('body', '[]'))
+            # print(body_data)
+
+            # Calculate the sum of totalAmount values
+            total_amount_sum = sum(float(entry.get('totalAmount', 0)) for entry in body_data)
+            print(f"Total Amount Sum: {total_amount_sum}")
+
+           
+            ##################line graph for last 30 days##########
+            # Sort the data by date
+            sorted_body_data = sorted(body_data, key=lambda x: x['date'])
+
+
+            ##################line graph for last 12 months##########
+            # Filter data for the last 12 months
+            last_12_months_data = [entry for entry in sorted_body_data if datetime.now() - datetime.strptime(entry['date'], '%Y-%m-%d') <= timedelta(days=365)]
+
+            
+            #####################calculate last 12 months category wise data##################################
+            # Use a defaultdict to accumulate totalAmount values for each month and category
+            # Use a defaultdict to accumulate totalAmount values for each category over the last 12 months
+            current_month_year = datetime.now().strftime('%Y-%m')
+            
+            category_totals_12_months = defaultdict(lambda: set())
+            for entry in last_12_months_data:
+                # Skip the current month's data
+                if entry['date'][:7] == current_month_year:
+                    continue
+                
+                category_totals_12_months[entry['category']].add(float(entry['totalAmount']))
+
+            # Convert the sets to lists for easier serialization to JSON
+            category_totals_12_months = {category: list(total_amounts) for category, total_amounts in category_totals_12_months.items()}
 
             pred_cat_list =[]
             for category, values in category_totals_12_months.items():
@@ -332,8 +414,6 @@ def analytics():
 
                 model.fit(x,y)
 
-                # predictions = model.predict(x_test)
-
                 #  mse = mean_squared_error(y_test)
                 next_month_number = len(list_cat)+1
                 next_month_prediction = model.predict(np.array([[next_month_number]]))
@@ -343,29 +423,19 @@ def analytics():
                 # pred_cat_list[category] = next_month_prediction
                 pred_cat_list.append({'category': category, 'predicted_amount': next_month_prediction[0]})
 
-
-            
-            pie_chart_data = sorted(pie_chart_data, key=lambda x: x['category'].lower())
             pred_cat_list = sorted(pred_cat_list, key=lambda x: x['category'].lower())
-            print(pie_chart_data)
             print(pred_cat_list)
             # Include all necessary data in a single variable
             frontend_data = {
                 'user_id': session['user_id'],
-                'total_amount_sum': total_amount_sum,
-                'total_amount_current_month': total_amount_current_month,
-                'percentage_increase_last_month': percentage_increase,
-                'pie_chart_data': pie_chart_data,
-                'line_chart_data_30_days': line_chart_data_30_days,
-                'line_chart_data_12_months': line_chart_data_12_months,
                 'pred_cat_list' : pred_cat_list
             }
-            return render_template('analytics.html', **frontend_data)
+            return render_template('predictions.html', **frontend_data)
         
         else:
             # Print an error message if the request was not successful
             print(f"Error fetching API data. Status code: {response.status_code}")
-            return render_template('analytics.html', user_id=session['user_id'], total_amount_sum=0, pie_chart_data="[]", transactions=[])
+            return render_template('predictions.html', user_id=session['user_id'], total_amount_sum=0, pie_chart_data="[]", transactions=[])
 
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON: {e}")
