@@ -12,15 +12,17 @@
 
     <!-- Profile Photo Section -->
     <div class="profile-photo-section text-center mb-4">
-        <img src="{{ user_photo }}" alt="Profile Photo" id="profilePhoto" class="profile-photo mb-3">
+        <div class="profile-photo-container">
+            <img src="{{ url_for('static', filename='css/images/default_profile_pic.jpg') }}" alt="Profile Photo" id="profilePhoto" class="profile-photo mb-3">
+        </div>
         <input type="file" id="photoUpload" name="photoUpload" accept="image/png, image/jpeg">
     </div>
 
-    <!-- Name Update Section -->
+    <!-- Name Update Section
     <div class="name-update-section mb-4">
         <label for="nameInput">Name</label>
         <input type="text" id="nameInput" name="name" placeholder="Enter your name" value="{{ user_name }}">
-    </div>
+    </div> -->
 
     <!-- Email Frequency Dropdown -->
     <div class="email-frequency-section mb-4">
@@ -34,20 +36,76 @@
 
     <!-- Save Button -->
     <div class="save-button-section text-center">
-        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button id="saveChangesBtn" class="btn btn-primary">Save Changes</button>
     </div>
 </div>
 
 <script>
-    document.getElementById('photoUpload').addEventListener('change', function(event) {
-        var file = event.target.files[0];
-        if (file) {
+    document.addEventListener('DOMContentLoaded', function() {
+    var photoInput = document.getElementById('photoUpload');
+    var profilePhoto = document.getElementById('profilePhoto');
+
+    var userId = '{{ user_id }}';
+    fetch('/getUserProfilePic/' + userId)
+    .then(response => response.json())
+    .then(data => {
+        // Parse the JSON body from the response
+        var parsedData = JSON.parse(data.body);
+        console.log(parsedData);
+        if (parsedData.exists) {
+            document.getElementById('profilePhoto').src = parsedData.url;
+        }
+    })
+    .catch(error => console.error('Error fetching user image:', error));
+
+    photoInput.addEventListener('change', function(event) {
+        if (event.target.files.length > 0) {
+            var file = event.target.files[0];
             var reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('profilePhoto').src = e.target.result;
+
+            reader.onloadend = function() {
+                profilePhoto.src = reader.result;
             };
+
             reader.readAsDataURL(file);
         }
+    });
+
+    // Existing event listener for 'saveChangesBtn'
+    document.getElementById('saveChangesBtn').addEventListener('click', function() {
+    console.log("Button clicked!");
+    var photoInput = document.getElementById('photoUpload');
+    var emailFrequency = document.getElementById('emailFrequency').value;
+
+    var formData = new FormData();
+    if (photoInput.files.length > 0) {
+        formData.append('file', photoInput.files[0]);
+        formData.append('contentType', photoInput.files[0].type);
+    }
+    formData.append('emailFrequency', emailFrequency);
+    // Assuming user_id is available in your template
+    formData.append('user_id', '{{ user_id }}');
+
+    fetch('/updateUserPreferences', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        alert('Preferences updated successfully!');
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Error updating preferences');
+    });
+});
+    // ...
     });
 </script>
 

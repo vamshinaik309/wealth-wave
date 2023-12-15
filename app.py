@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 from collections import defaultdict
 from flask import flash
 from datetime import datetime, timedelta
+from botocore.exceptions import ClientError
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -34,6 +35,9 @@ API_GATEWAY_BASE_URL = 'https://qqhx04wws7.execute-api.us-east-1.amazonaws.com/t
 API_GATEWAY_UPLOAD_ENDPOINT = API_GATEWAY_BASE_URL + '/upload'
 API_GATEWAY_AUTOFILL_ENDPOINT = API_GATEWAY_BASE_URL + '/autofill'
 API_GATEWAY_SAVEBILL_ENDPOINT = API_GATEWAY_BASE_URL + '/savebill'
+
+API_GATEWAY_UPDATE_USER_PREF_ENDPOINT = API_GATEWAY_BASE_URL + '/updateUserPref'
+API_GATEWAY_GET_PROFILE_PIC_URL_ENDPOINT = API_GATEWAY_BASE_URL + '/getProfilePicUrl'
 
 #S3 Configurations
 BUCKET_NAME = 'wealthwave-bills-data'
@@ -488,6 +492,51 @@ def save_bill_data():
         return jsonify(response.json()), 200
     else:
         return jsonify(response.json()), response.status_code
+    
+@app.route('/updateUserPreferences', methods=['POST'])
+def update_user_preferences():
+    # Handle file upload if present
+    file_content_base64 = ""
+    if 'file' in request.files:
+        file = request.files['file']
+        file_content_base64 = base64.b64encode(file.read()).decode('utf-8')
+
+    # Get email frequency preference
+    email_frequency = request.form.get('emailFrequency')
+    user_id = request.form.get('user_id') 
+    print(user_id)
+
+    # Prepare the payload for the API Gateway
+    payload = json.dumps({
+        'user_id': user_id,  # assuming user_id is sent as part of the form data
+        'email_frequency': email_frequency,
+        'file_content': file_content_base64,  # Send the base64 encoded file content
+        'filename': file.filename if 'file' in request.files else "",
+        'contentType': request.form.get('contentType')
+    })
+
+    # Send the request to API Gateway
+    response = requests.post(API_GATEWAY_UPDATE_USER_PREF_ENDPOINT, data=payload, headers={'Content-Type': 'application/json'})
+
+    # Handle the response from API Gateway
+    if response.status_code == 200:
+        # Process was successful, forward the response
+        return jsonify(response.json()), 200
+    else:
+        # There was an error, forward the error message
+        return jsonify(response.json()), response.status_code
+    
+@app.route('/getUserProfilePic/<user_id>')
+def get_user_profile_pic(user_id):
+    try:
+        response = requests.get(API_GATEWAY_GET_PROFILE_PIC_URL_ENDPOINT, params={'user_id': user_id})
+
+        if response.status_code == 200:
+            return response.json()  # Return the JSON response from the Lambda function
+        else:
+            return {'exists': False, 'url': ''}, response.status_code
+    except requests.exceptions.RequestException as e:
+        return {'message': str(e)}, 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port = 5001)
