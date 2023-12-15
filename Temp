@@ -1,4 +1,16 @@
-scp -i "/Users/tanmayanilrathi/Documents/Syllabus/Fall 2023/Cloud Computing/Project/wealthwave_repo/ec2keypair.pem" -r app.py requirements.txt Temp static templates ec2-user@35.153.161.89:/home/ec2-user/myapp/
+ssh -i ec2keypair.pem ec2-user@35.153.161.89
+scp -i "/Users/tanmayanilrathi/Documents/Syllabus/Fall 2023/Cloud Computing/Project/wealthwave_repo/ec2keypair.pem" -r app.py requirements.txt static templates ec2-user@35.153.161.89:/home/ec2-user/myapp/
+
+https://wealthwavenyu.net/
 
 sudo lsof -i:5001
 sudo kill -9 68315
+
+
+
+user-profiles/1f93b5b0-0cd2-4e6b-9218-a83f60633eb8/20231124_072749_b0c6af6be6e3401b9da21f4b4cea09af.png
+user-profiles/1f93b5b0-0cd2-4e6b-9218-a83f60633eb8/20231124_072749_b0c6af6be6e3401b9da21f4b4cea09af.png
+user-profiles/1f93b5b0-0cd2-4e6b-9218-a83f60633eb8
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">

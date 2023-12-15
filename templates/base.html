@@ -12,6 +12,7 @@
     <nav id="sidebar">
         <div class="sidebar-header">
             <h3>Wealth Wave</h3>
+            <img src="{{ url_for('static', filename='css/images/logo.png') }}" alt="Wealth Wave Logo" class="sidebar-logo">
         </div>
         <ul class="list-unstyled components">
             <li class="active">
@@ -38,6 +39,15 @@
         </ul>
     </nav>
 
+    <!-- Top bar -->
+    <div id="top-bar">
+        <!-- You can style this with CSS, position it at the top, and style the content as needed -->
+        <div class="user-info">
+            <span class="username">{{ user_name }}</span> <!-- Replace with dynamic username -->
+            <img src="{{ url_for('static', filename='css/images/default_profile_pic.jpg') }}" alt="User Photo" id="userPhoto" class="user-photo"> <!-- Replace with dynamic source if needed -->
+        </div>
+    </div>
+
     <!-- Page content -->
     <div id="content">
         <!-- Page header -->
@@ -50,6 +60,23 @@
     </div>
 
     <!-- Add your JavaScript scripts here (if needed) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load and update profile picture if available
+            var userId = '{{ user_id }}'; // Make sure user_id is passed to the template
+            fetch('/getUserProfilePic/' + userId)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    var parsedData = JSON.parse(data.body);
+                    console.log(parsedData);
+                    if (parsedData.exists) {
+                        document.getElementById('userPhoto').src = parsedData.url;
+                    }
+                })
+                .catch(error => console.error('Error fetching user image:', error));
+        });
+    </script>
     
 </body>
 </html>

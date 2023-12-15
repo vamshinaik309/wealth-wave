@@ -1,27 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Welcome</title>
-    <!-- Link to your index styles (index.css) -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to WealthWave</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
-<body>
-    <div class ="center">
-        <h1>
-            <span>W</span>
-            <span>e</span>
-            <span>a</span>
-            <span>l</span>
-            <span>t</span>
-            <span>h</span>
-            <span>W</span>
-            <span>a</span>
-            <span>v</span>
-            <span>e</span>
-        </h1>
-    </div>
-    <h2>Spend -> ScanBills Effortlessly -> Track Expenses -> Predict Expenses -> Be safe Financially </h2> 
-    <h4 >You're just one click away from starting a financial journey with WealthWave</h4>
-    <div class = "centerr"> <a href="/signin">SignIn/SignUp</a> </div>
+<body style="background: url('{{ url_for('static', filename='css/images/background.png') }}') no-repeat center center fixed; background-size: cover; color: #ffffff; line-height: 1.6;">
+    <header>
+        <div class="container">
+            <h1>WealthWave</h1>
+            <nav>
+                <a href="/signin" class="btn-signin">Sign In / Sign Up</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <div class="container">    
+                <h2>Master Your Finances with Ease</h2>
+                <img src="{{ url_for('static', filename='css/images/logo.png') }}" alt="Wealth Wave Logo" class="sidebar-logo">
+                <p>Effortlessly scan bills, track expenses, <br> Predict your financial future! 
+                    <br>
+                    <br> <b>Join WealthWave</b> 
+                    <br> Secure your financial safety today!!!</p>
+                <!-- <a href="/getstarted" class="btn-getstarted">Get Started</a> -->
+            </div>
+        </section>
+    </main>
+    
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 WealthWave. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
