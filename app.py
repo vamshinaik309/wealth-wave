@@ -26,8 +26,8 @@ COGNITO_APP_CLIENT_ID = '2g6k88qolbqpalkvtb828v7nj6'
 COGNITO_APP_CLIENT_SECRET = '1jlii3adeqpodqd4ag1apabtsbts2h5civsl4ahut6le4g3skh3h'
 COGNITO_REGION = 'us-east-1'
 COGNITO_DOMAIN = 'https://wealthwave.auth.us-east-1.amazoncognito.com'
-# REDIRECT_URI = 'https://wealthwavenyu.net/home'
-REDIRECT_URI = 'http://localhost:5001/home'
+REDIRECT_URI = 'https://wealthwavenyu.net/home'
+# REDIRECT_URI = 'http://localhost:5001/home'
 
 
 #API Gateway Endpoints

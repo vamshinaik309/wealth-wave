@@ -14,3 +14,6 @@ user-profiles/1f93b5b0-0cd2-4e6b-9218-a83f60633eb8
 
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
+
+i think we should write the next section on -the workflow, any issues you faced, how did you overcome

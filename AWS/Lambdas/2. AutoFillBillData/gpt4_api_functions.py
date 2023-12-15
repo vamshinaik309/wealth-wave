@@ -39,6 +39,7 @@ You are a helpful assistant designed to output JSON.
 Analyze the following receipt and extract the specified details.
 Structure the output as a JSON object with the following keys:
 - 'date': The date of the transaction in the format "yyyy-MM-dd".
+- 'time': The time of the transaction in 24-hour format 'HH:mm'.
 - 'total_amount': The total amount paid, as a numerical value without the currency symbol.
 - 'currency_type': The type of currency used (e.g., dollar, rupee).
 - 'category': The category of the purchase from the following options: groceries/food, dining, utilities, housing, transportation, healthcare, entertainment, clothing, education, alcohol/beverages, travel.
