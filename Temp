@@ -17,3 +17,6 @@ user-profiles/1f93b5b0-0cd2-4e6b-9218-a83f60633eb8
 
 
 i think we should write the next section on -the workflow, any issues you faced, how did you overcome
+
+
+{'Username': '1f93b5b0-0cd2-4e6b-9218-a83f60633eb8', 'UserAttributes': [{'Name': 'sub', 'Value': '1f93b5b0-0cd2-4e6b-9218-a83f60633eb8'}, {'Name': 'birthdate', 'Value': '05/09/1999'}, {'Name': 'email_verified', 'Value': 'true'}, {'Name': 'phone_number_verified', 'Value': 'false'}, {'Name': 'phone_number', 'Value': '+15169681376'}, {'Name': 'given_name', 'Value': 'Tanmay'}, {'Name': 'email', 'Value': 'tanmayr71@gmail.com'}], 'ResponseMetadata': {'RequestId': '2e686597-df61-4ac6-9761-f54f7d342aaa', 'HTTPStatusCode': 200, 'HTTPHeaders': {'date': 'Fri, 15 Dec 2023 19:18:25 GMT', 'content-type': 'application/x-amz-json-1.1', 'content-length': '397', 'connection': 'keep-alive', 'x-amzn-requestid': '2e686597-df61-4ac6-9761-f54f7d342aaa'}, 'RetryAttempts': 0}}
