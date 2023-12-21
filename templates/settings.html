@@ -85,6 +85,8 @@
     formData.append('emailFrequency', emailFrequency);
     // Assuming user_id is available in your template
     formData.append('user_id', '{{ user_id }}');
+    formData.append('username', '{{ user_name }}');
+    formData.append('user_email', '{{ user_email }}');
 
     fetch('/updateUserPreferences', {
         method: 'POST',

@@ -498,7 +498,7 @@ def settings():
     if not is_authenticated():
         return redirect(url_for('signin'))
 
-    return render_template('settings.html', user_id=session['user_id'],user_email=session['user_email'])
+    return render_template('settings.html', user_id=session['user_id'], user_name=session['user_name'], user_email=session['user_email'])
 
 @app.route('/signout')
 def signout():
@@ -577,12 +577,23 @@ def update_user_preferences():
     # Get email frequency preference
     email_frequency = request.form.get('emailFrequency')
     user_id = request.form.get('user_id') 
+
+    user_id = request.form.get('user_id') 
+    username = request.form.get('username') 
+    user_email = request.form.get('user_email') 
+    last_email = datetime.now().isoformat() 
+
     print(user_id)
+    print(f'username: {username}')
+    print(f'user_email: {user_email}')
 
     # Prepare the payload for the API Gateway
     payload = json.dumps({
         'user_id': user_id,  # assuming user_id is sent as part of the form data
         'email_frequency': email_frequency,
+        'username': username,
+        'user_email': user_email,
+        'last_email': last_email,
         'file_content': file_content_base64,  # Send the base64 encoded file content
         'filename': file.filename if 'file' in request.files else "",
         'contentType': request.form.get('contentType')
