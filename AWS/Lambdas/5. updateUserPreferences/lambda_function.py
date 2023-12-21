@@ -1,6 +1,7 @@
 import json
 import boto3
 import base64
+from datetime import datetime
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
@@ -9,10 +10,14 @@ def lambda_handler(event, context):
     bucket_name = 'wealthwave-user-images'
 
     try:
+        # Retrieve additional data from the event
         user_id = event['user_id']
         email_frequency = event['email_frequency']
+        username = event['username']
+        user_email = event['user_email']
+        last_email = event['last_email']  # Assuming last_email is passed in the event
         file_content = event.get('file_content', '')
-        content_type = event.get('contentType', 'application/octet-stream')  # Default content type
+        content_type = event.get('contentType', 'application/octet-stream')
 
         # S3 object key pattern
         s3_object_key = f'user-profiles/{user_id}'
@@ -24,28 +29,26 @@ def lambda_handler(event, context):
                 Bucket=bucket_name,
                 Key=s3_object_key,
                 Body=file_data,
-                ContentType=content_type,  # Adjust based on actual content type
-                CacheControl='max-age=86400'  # Example cache control header
+                ContentType=content_type,
+                CacheControl='max-age=86400'
             )
 
-        # Update DynamoDB with email frequency and S3 object key
-        update_expression = 'SET emailFrequency = :ef, s3ObjectKey = :ok'
+        # Update DynamoDB
+        update_expression = 'SET emailFrequency = :ef, s3ObjectKey = :ok, username = :un, user_email = :ue, last_email = :le'
         expression_attribute_values = {
             ':ef': email_frequency,
-            ':ok': s3_object_key  # Store only the user_id-based key
+            ':ok': s3_object_key,
+            ':un': username,
+            ':ue': user_email,
+            ':le': last_email
         }
-        
-        print(f'update_expression: {update_expression}')
-        print(f'expression_attribute_values: {expression_attribute_values}')
 
         table.update_item(
-            Key={'user_id': user_id},  # Ensure the key matches your DynamoDB table's primary key
+            Key={'user_id': user_id},
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values
         )
-        
-        print(f'table is updated!')
-        
+
         return {
             'statusCode': 200,
             'body': json.dumps({'message': 'User preferences updated successfully'})
@@ -55,3 +58,4 @@ def lambda_handler(event, context):
             'statusCode': 500,
             'body': json.dumps({'message': f'Error: {str(e)}'})
         }
+        
