@@ -101,6 +101,8 @@
     .then(data => {
         console.log(data);
         alert('Preferences updated successfully!');
+        window.location.href = '/home';  // Redirect to the home page
+        console.log('Nav to home page');
     })
     .catch(error => {
         console.error('Fetch error:', error);

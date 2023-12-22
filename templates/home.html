@@ -51,6 +51,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('top-bar').style.display = 'none';
         // Load and update profile picture if available
         var userId = '{{ user_id }}'; // Make sure user_id is passed to the template
         fetch('/getUserProfilePic/' + userId)
