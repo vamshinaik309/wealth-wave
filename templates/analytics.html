@@ -22,7 +22,10 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Percentage Increase Last Month</div>
+                            <!-- <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Percentage Increase Last Month</div> -->
+                            <div id="spendingGrowthLabel" class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                <!-- Label will be updated by JavaScript -->
+                            </div>                            
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ percentage_increase_last_month | round(2) }}%</div>
                         </div>
                         <div class="col-auto">
@@ -199,6 +202,26 @@
             }
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    var spendingGrowthLabel = document.getElementById('spendingGrowthLabel');
+    
+    // Get the last two months
+    var today = new Date();
+    var lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    var monthBeforeLast = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+
+    // Month names array
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+                      "July", "August", "September", "October", "November", "December"];
+
+    // Set the label
+    spendingGrowthLabel.textContent = "Percentage Increase in " + 
+                                      monthNames[lastMonth.getMonth()] + 
+                                      " (Last Month) vs " + 
+                                      monthNames[monthBeforeLast.getMonth()];
+    });
+
 
 </script>
 
